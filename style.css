@@ -89,6 +89,7 @@ a {
   align-items: center;
   vertical-align: middle;
   justify-content: center;
+  cursor: pointer;
 }
 .stress-circle-filled {
   background-color: black;
@@ -161,6 +162,12 @@ a {
 }
 .aspect-generic {
   background-color: #a0a0a0;
+}
+.aspect-tags svg {
+  border: solid 2px black;
+  padding: 1px;
+  margin: 1px;
+  cursor: pointer;
 }
 .aspect-text {
   display: flex;

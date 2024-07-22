@@ -20,16 +20,16 @@ initialUmbra =
     , portrait = "whatever.png"
     , stresses =
         [ { name = "Physical", cap = 3, used = [] }
-        , { name = "Mental", cap = 3, used = [2] }
-        , { name = "Hunger", cap = 2, used = [1] }
+        , { name = "Mental", cap = 3, used = [ 2 ] }
+        , { name = "Hunger", cap = 2, used = [ 1 ] }
         ]
     , fate = { refresh = 4, available = 5 }
     , aspects =
         [ { name = "Rekt", kind = Consequence Moderate, tags = 0 }
         , { name = "Dizzy", kind = Consequence Mild, tags = 0 }
         , { name = "Super Rekt", kind = Consequence Severe, tags = 0 }
-        , { name = "Generic", kind = Generic, tags = 0 }
-        , { name = "Sticky", kind = Sticky, tags = 0 }
+        , { name = "Generic", kind = Generic, tags = 2 }
+        , { name = "Sticky", kind = Sticky, tags = 1 }
         , { name = "Fragile", kind = Fragile, tags = 0 }
         ]
     }
@@ -41,11 +41,7 @@ initialScene =
     , stresses = []
     , fate = { refresh = 0, available = 0 }
     , aspects =
-        [ { name = "Rekt", kind = Consequence Moderate, tags = 0 }
-        , { name = "Dizzy", kind = Consequence Mild, tags = 0 }
-        , { name = "Super Rekt", kind = Consequence Severe, tags = 0 }
-        , { name = "Generic", kind = Generic, tags = 0 }
-        , { name = "Sticky", kind = Sticky, tags = 0 }
+        [ { name = "Sticky", kind = Sticky, tags = 0 }
         , { name = "Fragile", kind = Fragile, tags = 0 }
         ]
     }
@@ -54,15 +50,13 @@ initialScene =
 initialEntities =
     [ initialScene
     , initialUmbra
-    , initialUmbra
-    , initialUmbra
     ]
 
 
 main : Program () Model Msg
 main =
     Browser.element
-        { init = \_ -> ( initialEntities, Cmd.none )
+        { init = \_ -> ( { entities = initialEntities} , Cmd.none )
         , update = update
         , view = view
         , subscriptions = subscriptions
@@ -72,10 +66,7 @@ main =
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
-        Increment ->
-            ( model, Cmd.none )
-
-        Decrement ->
+        _ ->
             ( model, Cmd.none )
 
 
@@ -83,7 +74,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ Icon.css
-        , home model
+        , home model.entities
         ]
 
 

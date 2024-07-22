@@ -7,11 +7,25 @@ import FontAwesome.Brands as Icon
 import FontAwesome.Solid as Icon
 import FontAwesome.Styles as Icon
 import FontAwesome.Transforms as Icon
-import Html exposing (Html, a, button, code, div, h1, i, input, li, p, span, text, ul)
+import Html exposing (Attribute, Html, a, button, code, div, h1, i, input, li, p, span, text, ul)
 import Html.Attributes as Attr
-import Html.Events exposing (onClick)
+import Html.Events exposing (keyCode, on, onClick)
+import Json.Decode as D
 import Model exposing (..)
 import Msg exposing (Msg(..))
+
+
+onEnter : msg -> Attribute msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                D.succeed msg
+
+            else
+                D.fail "not ENTER"
+    in
+    on "keydown" (D.andThen isEnter keyCode)
 
 
 nbsp : String
@@ -41,7 +55,7 @@ entityV entity =
                 stressContainerV entity entity.stresses
             ]
         , div [ Attr.class "entity-aspects" ]
-            (List.map (aspectV entity.name) entity.aspects ++ [ aspectInput ])
+            (List.map (aspectV entity.name) entity.aspects ++ [ aspectInput entity.name ])
         ]
 
 
@@ -82,10 +96,10 @@ stressV : EntityName -> StressTrack -> Html Msg
 stressV entityName stress =
     let
         filled slot =
-            span [ Attr.class "stress-circle", Attr.class "stress-circle-filled" ] [ text <| String.fromInt slot ]
+            span [ Attr.class "stress-circle", Attr.class "stress-circle-filled", onClick <| FreeStressBox entityName stress.name slot ] [ text <| String.fromInt slot ]
 
         empty slot =
-            span [ Attr.class "stress-circle" ] [ text <| String.fromInt slot ]
+            span [ Attr.class "stress-circle", onClick <| UseStressBox entityName stress.name slot ] [ text <| String.fromInt slot ]
     in
     div [ Attr.class "stress" ]
         [ span [ Attr.class "stress-indicator" ] [ text stress.name ]
@@ -127,16 +141,20 @@ aspectV entityName { name, kind, tags } =
 
                 Sticky ->
                     span [ Attr.class "aspect-head", Attr.class "aspect-sticky" ] [ text "s" ]
+
+        tagSpan =
+            span [ Attr.class "aspect-tags", onClick <| TagAspect entityName name ] (List.repeat tags (Icon.view Icon.hashtag))
     in
     div [ Attr.class "aspect" ]
         [ headSpan
+        , tagSpan
         , span [ Attr.class "aspect-text" ] [ text name ]
         , a [ Attr.class "aspect-button", Attr.href "#" ] [ Icon.view Icon.x ]
         ]
 
 
-aspectInput : Html Msg
-aspectInput =
+aspectInput : EntityName -> Html Msg
+aspectInput entityName =
     div [ Attr.class "aspect", Attr.class "aspect-input" ]
         [ span [ Attr.class "aspect-head", Attr.class "aspect-generic" ] []
         , input [ Attr.class "aspect-text", Attr.placeholder "Add New" ] []

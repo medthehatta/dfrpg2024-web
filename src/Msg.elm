@@ -1,6 +1,14 @@
 module Msg exposing (Msg(..))
+import Model exposing (..)
 
 
 type Msg
-    = Increment
-    | Decrement
+    = AddAspect EntityName AspectName
+    | TagAspect EntityName AspectName
+    | UntagAspect EntityName AspectName
+    | RemoveAspect EntityName AspectName
+    | UseStressBox EntityName StressTrackName Int
+    | FreeStressBox EntityName StressTrackName Int
+    | SetFP EntityName Int
+    | IncrementFP EntityName
+    | DecrementFP EntityName
