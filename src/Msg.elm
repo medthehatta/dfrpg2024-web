@@ -1,5 +1,6 @@
 module Msg exposing (Msg(..))
 import Model exposing (..)
+import Http
 
 
 type Msg
@@ -12,3 +13,4 @@ type Msg
     | SetFP EntityName Int
     | IncrementFP EntityName
     | DecrementFP EntityName
+    | GotGameData (Result Http.Error (List Entity))

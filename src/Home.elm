@@ -1,4 +1,4 @@
-module Home exposing (home)
+module Home exposing (entityDecoderFromGameResult, home)
 
 import Color
 import FontAwesome as Icon
@@ -157,6 +157,78 @@ aspectInput : EntityName -> Html Msg
 aspectInput entityName =
     div [ Attr.class "aspect", Attr.class "aspect-input" ]
         [ span [ Attr.class "aspect-head", Attr.class "aspect-generic" ] []
-        , input [ Attr.class "aspect-text", Attr.placeholder "Add New" ] []
+        , input [ Attr.class "aspect-text", Attr.placeholder "Add Aspect..." ] []
         , a [ Attr.class "aspect-button", Attr.href "#" ] [ Icon.view Icon.check ]
         ]
+
+
+
+-- JSON Decoders
+
+
+aspectDecoder =
+    let
+        aspectKindDecoder =
+            D.maybe D.string
+                |> D.andThen
+                    (\mstr ->
+                        case mstr of
+                            Nothing ->
+                                D.succeed Generic
+
+                            Just "mild" ->
+                                D.succeed <| Consequence Mild
+
+                            Just "moderate" ->
+                                D.succeed <| Consequence Moderate
+
+                            Just "severe" ->
+                                D.succeed <| Consequence Severe
+
+                            Just "fragile" ->
+                                D.succeed Fragile
+
+                            Just "sticky" ->
+                                D.succeed Sticky
+
+                            Just str ->
+                                D.fail ("Unknown aspect kind: " ++ str)
+                    )
+    in
+    D.map3
+        Aspect
+        (D.field "name" D.string)
+        (D.field "kind" aspectKindDecoder)
+        (D.field "tags" D.int)
+
+
+stressesDecoder =
+    let
+        stressContentDecoder =
+            D.map2
+                (\c -> \m -> { cap = m, used = c })
+                (D.field "checked" (D.list D.int))
+                (D.field "max" D.int)
+    in
+    D.keyValuePairs stressContentDecoder
+        |> D.map
+            (List.map (\( stress, v ) -> { name = stress, cap = v.cap, used = v.used }))
+
+
+entityDecoder =
+    D.map5
+        Entity
+        (D.field "name" D.string)
+        (D.succeed "")
+        (D.field "stress" stressesDecoder)
+        (D.map2
+            (\x -> \y -> { refresh = x, available = y })
+            (D.field "refresh" D.int)
+            (D.field "fate" D.int)
+        )
+        (D.field "aspects" <| D.list aspectDecoder)
+
+
+entityDecoderFromGameResult =
+    D.at [ "result", "entities" ] (D.keyValuePairs entityDecoder)
+        |> D.map (List.map Tuple.second)

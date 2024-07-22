@@ -7,56 +7,26 @@ import FontAwesome.Brands as Icon
 import FontAwesome.Solid as Icon
 import FontAwesome.Styles as Icon
 import FontAwesome.Transforms as Icon
-import Home exposing (home)
+import Home exposing (entityDecoderFromGameResult, home)
 import Html exposing (Html, div, img)
 import Html.Attributes exposing (src, style)
+import Http
 import Model exposing (..)
 import Msg exposing (Msg(..))
 import VitePluginHelper
 
 
-initialUmbra =
-    { name = "Umbra"
-    , portrait = "whatever.png"
-    , stresses =
-        [ { name = "Physical", cap = 3, used = [] }
-        , { name = "Mental", cap = 3, used = [ 2 ] }
-        , { name = "Hunger", cap = 2, used = [ 1 ] }
-        ]
-    , fate = { refresh = 4, available = 5 }
-    , aspects =
-        [ { name = "Rekt", kind = Consequence Moderate, tags = 0 }
-        , { name = "Dizzy", kind = Consequence Mild, tags = 0 }
-        , { name = "Super Rekt", kind = Consequence Severe, tags = 0 }
-        , { name = "Generic", kind = Generic, tags = 2 }
-        , { name = "Sticky", kind = Sticky, tags = 1 }
-        , { name = "Fragile", kind = Fragile, tags = 0 }
-        ]
-    }
-
-
-initialScene =
-    { name = "Scene"
-    , portrait = "whatever.png"
-    , stresses = []
-    , fate = { refresh = 0, available = 0 }
-    , aspects =
-        [ { name = "Sticky", kind = Sticky, tags = 0 }
-        , { name = "Fragile", kind = Fragile, tags = 0 }
-        ]
-    }
-
-
-initialEntities =
-    [ initialScene
-    , initialUmbra
-    ]
-
-
 main : Program () Model Msg
 main =
     Browser.element
-        { init = \_ -> ( { entities = initialEntities} , Cmd.none )
+        { init =
+            \_ ->
+                ( { entities = [] }
+                , Http.get
+                    { url = "http://mancer.in:6501/game"
+                    , expect = Http.expectJson GotGameData entityDecoderFromGameResult
+                    }
+                )
         , update = update
         , view = view
         , subscriptions = subscriptions
@@ -66,6 +36,12 @@ main =
 update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
+        GotGameData (Err error) ->
+            ( model, Cmd.none )
+
+        GotGameData (Ok entities) ->
+            ( { model | entities = entities }, Cmd.none )
+
         _ ->
             ( model, Cmd.none )
 
