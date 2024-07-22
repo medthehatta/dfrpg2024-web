@@ -5,9 +5,183 @@
   text-align: center;
   color: #2c3e50;
   margin: 0 auto;
-  margin-top: 60px;
+  margin-top: 20px;
 }
 
 a {
   color: #60b5cc;
+}
+
+
+.entity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.entity {
+  display: flex;
+  flex-direction: column;
+  border: solid 1px black;
+  border-radius: 10px;
+  padding: 10px;
+}
+.entity-header {
+  display: flex;
+  flex-direction: row;
+  vertical-align: middle;
+  align-items: center;
+}
+.entity-top-corner {
+  display: flex;
+  padding: 5px;
+  flex-direction: column;
+  gap: 4px;
+  width: 300px;
+  text-align: left;
+}
+.entity-portrait {
+  width: 50px;
+  height: 50px;
+  border: solid 1px black;
+  margin: 3px;
+}
+.entity-name {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.entity-stress-container {}
+.entity-stress-header {
+  text-align: left;
+  font-weight: bold;
+  font-size: 110%;
+}
+.entity-stress {
+  display: flex;
+  gap: 10px;
+  margin-right: 20px;
+}
+
+.stress {
+  display: flex;
+  vertical-align: middle;
+  align-items: center;
+}
+.stress-indicator {
+  display: flex;
+  padding: 4px;
+}
+.stress-track {
+  list-style-type: none;
+  display: flex;
+  gap: 5px;
+  padding: 4px;
+}
+.stress-circle {
+  border: solid 1px black;
+  height: 15px;
+  width: 15px;
+  background-color: #fff;
+  border-radius: 50%;
+  display: flex;
+  font-size: 10px;
+  text-align: center;
+  align-items: center;
+  vertical-align: middle;
+  justify-content: center;
+}
+.stress-circle-filled {
+  background-color: black;
+}
+
+.entity-fp {
+  display: flex;
+  gap: 4px;
+  vertical-align: middle;
+  align-items: center;
+  color: #606060;
+}
+.entity-fp-avail {
+  font-weight: bold;
+  font-size: 22px;
+  color: black;
+}
+.entity-fp-slash {}
+.entity-fp-refresh {}
+
+.entity-aspects {
+  display: flex;
+  gap: 10px;
+  padding: 2px;
+}
+
+.aspect {
+  font-size: 14px;
+  display: flex;
+  border: solid 1px black;
+  border-radius: 5px;
+  vertical-align: middle;
+  align-items: center;
+  background-color: #fafaff;
+}
+.aspect input {
+  border: none;
+  outline: none;
+  min-width: 50px;
+  background: transparent;
+}
+.aspect input :focus {
+  outline: none;
+  width: 400px;
+}
+.aspect-head {
+  display: flex;
+  font-weight: bold;
+  height: 100%;
+  min-width: 15px;
+  text-align: center;
+  vertical-align: middle;
+  align-items: center;
+  justify-content: center;
+}
+.aspect-mild {
+  background-color: #f0a0a0;
+}
+.aspect-moderate {
+  background-color: #f00505;
+}
+.aspect-severe {
+  background-color: #d00000;
+}
+.aspect-fragile {
+  background-color: #a9c9fa;
+}
+.aspect-sticky {
+  background-color: #00f000;
+}
+.aspect-generic {
+  background-color: #a0a0a0;
+}
+.aspect-text {
+  display: flex;
+  margin-right: 8px;
+  padding: 4px;
+}
+.aspect-button {
+  font-size: 12px;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+  text-decoration: none;
+  border-radius: 50%;
+  border: solid 1px #b0b0b0;
+  color: #b0b0b0;
+}
+.aspect-button:hover {
+  border: solid 1px #606060;
+  color: #606060;
+}
+.aspect-button-confirm {
+  color: #30f030;
+  border-color: #30f030;
 }

@@ -1,42 +1,93 @@
 port module Main exposing (main)
 
 import Browser
+import FontAwesome as Icon
+import FontAwesome.Attributes as Icon
+import FontAwesome.Brands as Icon
+import FontAwesome.Solid as Icon
+import FontAwesome.Styles as Icon
+import FontAwesome.Transforms as Icon
 import Home exposing (home)
 import Html exposing (Html, div, img)
 import Html.Attributes exposing (src, style)
+import Model exposing (..)
 import Msg exposing (Msg(..))
 import VitePluginHelper
 
 
-main : Program () Int Msg
+initialUmbra =
+    { name = "Umbra"
+    , portrait = "whatever.png"
+    , stresses =
+        [ { name = "Physical", cap = 3, used = [] }
+        , { name = "Mental", cap = 3, used = [2] }
+        , { name = "Hunger", cap = 2, used = [1] }
+        ]
+    , fate = { refresh = 4, available = 5 }
+    , aspects =
+        [ { name = "Rekt", kind = Consequence Moderate, tags = 0 }
+        , { name = "Dizzy", kind = Consequence Mild, tags = 0 }
+        , { name = "Super Rekt", kind = Consequence Severe, tags = 0 }
+        , { name = "Generic", kind = Generic, tags = 0 }
+        , { name = "Sticky", kind = Sticky, tags = 0 }
+        , { name = "Fragile", kind = Fragile, tags = 0 }
+        ]
+    }
+
+
+initialScene =
+    { name = "Scene"
+    , portrait = "whatever.png"
+    , stresses = []
+    , fate = { refresh = 0, available = 0 }
+    , aspects =
+        [ { name = "Rekt", kind = Consequence Moderate, tags = 0 }
+        , { name = "Dizzy", kind = Consequence Mild, tags = 0 }
+        , { name = "Super Rekt", kind = Consequence Severe, tags = 0 }
+        , { name = "Generic", kind = Generic, tags = 0 }
+        , { name = "Sticky", kind = Sticky, tags = 0 }
+        , { name = "Fragile", kind = Fragile, tags = 0 }
+        ]
+    }
+
+
+initialEntities =
+    [ initialScene
+    , initialUmbra
+    , initialUmbra
+    , initialUmbra
+    ]
+
+
+main : Program () Model Msg
 main =
     Browser.element
-        { init = \_ -> ( 0, Cmd.none )
+        { init = \_ -> ( initialEntities, Cmd.none )
         , update = update
         , view = view
         , subscriptions = subscriptions
         }
 
 
-update : Msg -> Int -> ( Int, Cmd msg )
+update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         Increment ->
-            ( model + 1, Cmd.none )
+            ( model, Cmd.none )
 
         Decrement ->
-            ( model - 1, Cmd.none )
+            ( model, Cmd.none )
 
 
-view : Int -> Html Msg
+view : Model -> Html Msg
 view model =
     div []
-        [ img [ src <| VitePluginHelper.asset "/src/assets/logo.png", style "width" "300px" ] []
+        [ Icon.css
         , home model
         ]
 
 
-subscriptions : Int -> Sub msg
+subscriptions : Model -> Sub msg
 subscriptions _ =
     Sub.none
 
