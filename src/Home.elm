@@ -86,8 +86,7 @@ fateContainerV entity { refresh, available } =
 stressContainerV : Entity -> List StressTrack -> Html Msg
 stressContainerV entity stresses =
     div [ Attr.class "entity-stress-container" ]
-        [ div [ Attr.class "entity-stress-header" ] [ text "Stress" ]
-        , div [ Attr.class "entity-stress" ]
+        [ div [ Attr.class "entity-stress" ]
             (List.map (stressV entity.name) entity.stresses)
         ]
 

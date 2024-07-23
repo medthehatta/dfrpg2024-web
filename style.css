@@ -51,15 +51,12 @@ a {
 }
 
 .entity-stress-container {}
-.entity-stress-header {
-  text-align: left;
-  font-weight: bold;
-  font-size: 110%;
-}
 .entity-stress {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 2px;
   margin-right: 20px;
+  text-align: right;
 }
 
 .stress {
