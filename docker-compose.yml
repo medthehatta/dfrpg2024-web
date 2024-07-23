@@ -1,0 +1,10 @@
+version: '2'
+
+services:
+  frontend:
+    image: dfrpg-2024-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "65002:80"
