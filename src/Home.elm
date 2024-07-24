@@ -168,36 +168,33 @@ aspectInput entityName =
 aspectDecoder =
     let
         aspectKindDecoder =
-            D.maybe D.string
+            D.string
                 |> D.andThen
                     (\mstr ->
                         case mstr of
-                            Nothing ->
-                                D.succeed Generic
-
-                            Just "mild" ->
+                            "mild" ->
                                 D.succeed <| Consequence Mild
 
-                            Just "moderate" ->
+                            "moderate" ->
                                 D.succeed <| Consequence Moderate
 
-                            Just "severe" ->
+                            "severe" ->
                                 D.succeed <| Consequence Severe
 
-                            Just "fragile" ->
+                            "fragile" ->
                                 D.succeed Fragile
 
-                            Just "sticky" ->
+                            "sticky" ->
                                 D.succeed Sticky
 
-                            Just str ->
+                            str ->
                                 D.fail ("Unknown aspect kind: " ++ str)
                     )
     in
     D.map3
-        Aspect
+        (\n -> \mk -> \t -> { name = n, kind = mk |> Maybe.withDefault Generic, tags = t})
         (D.field "name" D.string)
-        (D.field "kind" aspectKindDecoder)
+        (D.maybe (D.field "kind" aspectKindDecoder))
         (D.field "tags" D.int)
 
 
