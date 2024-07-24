@@ -1,4 +1,4 @@
-FROM node:20.10.0 AS elm-build
+FROM node:18.0.0 AS elm-build
 
 WORKDIR /app
 
