@@ -16,16 +16,21 @@ import Msg exposing (Msg(..))
 import VitePluginHelper
 
 
+refreshGameData : Cmd Msg
+refreshGameData =
+    Http.get
+        { url = "http://mancer.in:6501/game"
+        , expect = Http.expectJson GotGameData entityDecoderFromGameResult
+        }
+
+
 main : Program () Model Msg
 main =
     Browser.element
         { init =
             \_ ->
                 ( { entities = [] }
-                , Http.get
-                    { url = "http://mancer.in:6501/game"
-                    , expect = Http.expectJson GotGameData entityDecoderFromGameResult
-                    }
+                , refreshGameData
                 )
         , update = update
         , view = view
@@ -33,10 +38,14 @@ main =
         }
 
 
-update : Msg -> Model -> ( Model, Cmd msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
+    case Debug.log "msg=" msg of
         GotGameData (Err error) ->
+            let
+                _ =
+                    Debug.log "error: " error
+            in
             ( model, Cmd.none )
 
         GotGameData (Ok entities) ->
