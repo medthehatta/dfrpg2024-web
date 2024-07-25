@@ -7,7 +7,7 @@ import FontAwesome.Brands as Icon
 import FontAwesome.Solid as Icon
 import FontAwesome.Styles as Icon
 import FontAwesome.Transforms as Icon
-import Html exposing (Attribute, Html, a, button, code, div, h1, i, input, li, p, span, text, ul)
+import Html exposing (Attribute, Html, a, button, code, div, h1, i, img, input, li, p, span, text, ul)
 import Html.Attributes as Attr
 import Html.Events exposing (keyCode, on, onClick)
 import Json.Decode as D
@@ -43,7 +43,9 @@ entityV : Entity -> Html Msg
 entityV entity =
     div [ Attr.class "entity" ]
         [ div [ Attr.class "entity-header" ]
-            [ div [ Attr.class "entity-portrait" ] []
+            [ div [ Attr.class "entity-portrait" ]
+                [ img [ Attr.src entity.portrait ] []
+                ]
             , div [ Attr.class "entity-top-corner" ]
                 [ div [ Attr.class "entity-name" ] [ text entity.name ]
                 , fateContainerV entity entity.fate
@@ -215,7 +217,9 @@ entityDecoder =
     D.map5
         Entity
         (D.field "name" D.string)
-        (D.succeed "")
+        (D.maybe (D.field "portrait" D.string)
+            |> D.andThen (Maybe.withDefault "" >> D.succeed)
+        )
         (D.field "stress" stressesDecoder)
         (D.map2
             (\x -> \y -> { refresh = x, available = y })
