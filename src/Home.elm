@@ -216,11 +216,15 @@ stressesDecoder =
 
 
 entityDecoder =
+    let
+        elderSignPortrait =
+            "https://imgur.com/WPk0XRj.png"
+    in
     D.map5
         Entity
         (D.field "name" D.string)
         (D.maybe (D.field "portrait" D.string)
-            |> D.andThen (Maybe.withDefault "" >> D.succeed)
+            |> D.andThen (Maybe.withDefault elderSignPortrait >> D.succeed)
         )
         (D.field "stress" stressesDecoder)
         (D.map2
