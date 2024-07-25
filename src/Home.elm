@@ -194,9 +194,11 @@ aspectDecoder =
                     )
     in
     D.map3
-        (\n -> \mk -> \t -> { name = n, kind = mk |> Maybe.withDefault Generic, tags = t})
+        Aspect
         (D.field "name" D.string)
-        (D.maybe (D.field "kind" aspectKindDecoder))
+        (D.maybe (D.field "kind" aspectKindDecoder)
+            |> D.andThen (Maybe.withDefault Generic >> D.succeed)
+        )
         (D.field "tags" D.int)
 
 
