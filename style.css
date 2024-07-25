@@ -12,6 +12,10 @@ a {
   color: #60b5cc;
 }
 
+.home-container {}
+
+.turn-order {}
+
 
 .entity-list {
   display: grid;

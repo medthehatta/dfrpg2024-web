@@ -29,7 +29,7 @@ main =
     Browser.element
         { init =
             \_ ->
-                ( { entities = [] }
+                ( { entities = [], order = { entityNames = [], deferredNames = [] } }
                 , refreshGameData
                 )
         , update = update
@@ -59,7 +59,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ Icon.css
-        , home model.entities
+        , home model.entities model.order
         ]
 
 

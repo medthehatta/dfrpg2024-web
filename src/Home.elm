@@ -33,10 +33,31 @@ nbsp =
     String.fromChar '\u{00A0}'
 
 
-home : List Entity -> Html Msg
-home entities =
-    div [ Attr.class "entity-list" ]
-        (List.map entityV entities)
+home : List Entity -> TurnOrder -> Html Msg
+home entities order =
+    div [ Attr.class "home-container" ]
+        [ turnOrderV entities order
+        , div [ Attr.class "entity-list" ]
+            (List.map entityV entities)
+        ]
+
+
+turnOrderV : List Entity -> TurnOrder -> Html Msg
+turnOrderV entities order =
+    let
+        entityBox name =
+            div [ Attr.class "order-box" ]
+                [ div [ Attr.class "order-portrait" ] []
+                , div [ Attr.class "order-name" ] []
+                ]
+
+        deferredBox name =
+            div [] []
+    in
+    div [ Attr.class "order-track" ]
+        [ div [ Attr.class "order-main" ] (List.map entityBox order.entityNames)
+        , div [ Attr.class "order-deferred" ] (List.map deferredBox order.deferredNames)
+        ]
 
 
 entityV : Entity -> Html Msg

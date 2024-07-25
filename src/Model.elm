@@ -46,6 +46,11 @@ type alias Entity =
     }
 
 
+type alias TurnOrder =
+    { entityNames : List String, deferredNames : List String }
+
+
 type alias Model =
     { entities : List Entity
+    , order : TurnOrder
     }
