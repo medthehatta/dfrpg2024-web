@@ -14,8 +14,65 @@ a {
 
 .home-container {}
 
-.turn-order {}
+.order-track {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 10px;
+}
 
+
+.order-main {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+.order-deferred {
+    display: flex;
+    flex-direction: row;
+}
+
+.deferred-header {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: left;
+}
+
+.order-box {
+  display: flex;
+  flex-direction: column;
+  border: solid 1px black;
+  border-radius: 10px;
+  padding: 10px;
+  position: relative;
+  align-items: center;
+}
+.order-current {
+    position: absolute;
+    color: green;
+    transform: translateY(-100%);
+}
+.order-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    width: 50px;
+}
+.deferred-box {
+  display: flex;
+  flex-direction: column;
+  border: solid 1px black;
+  border-radius: 10px;
+  padding: 5px;
+}
+.deferred-portrait img {
+    width: 20px;
+    object-fit: contain;
+}
 
 .entity-list {
   display: grid;

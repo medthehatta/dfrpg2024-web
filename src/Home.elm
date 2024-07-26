@@ -1,4 +1,4 @@
-module Home exposing (entityDecoderFromGameResult, home)
+module Home exposing (home, modelDecoderFromGameResult)
 
 import Color
 import FontAwesome as Icon
@@ -45,18 +45,63 @@ home entities order =
 turnOrderV : List Entity -> TurnOrder -> Html Msg
 turnOrderV entities order =
     let
+        portrait name =
+            List.filter (\x -> x.name == name) entities
+                |> List.map (\x -> x.portrait)
+                |> List.head
+                |> Maybe.withDefault ""
+
+        isCurrent name =
+            List.indexedMap
+                (\i ->
+                    \x ->
+                        i == Maybe.withDefault -1 order.current && x == name
+                )
+                order.orderedNames
+                |> List.any (\s -> s == True)
+
         entityBox name =
+            let
+                currentMarker =
+                    if isCurrent name then
+                        Icon.view <| Icon.styled [ Icon.fa3x ] Icon.sortDown
+
+                    else
+                        div [] []
+            in
             div [ Attr.class "order-box" ]
-                [ div [ Attr.class "order-portrait" ] []
-                , div [ Attr.class "order-name" ] []
+                [ div [ Attr.class "order-current" ] [ currentMarker ]
+                , div [ Attr.class "order-portrait" ]
+                    [ img [ Attr.src (portrait name) ] []
+                    ]
+                , div [ Attr.class "order-name" ] [ text name ]
                 ]
 
         deferredBox name =
-            div [] []
+            div [ Attr.class "deferred-box" ]
+                [ div [ Attr.class "deferred-portrait" ] [ img [ Attr.src (portrait name) ] [] ]
+                , div [ Attr.class "order-name" ] [ text name ]
+                ]
+
+        deferredToggle =
+            if order.deferredNames == [] then
+                Attr.style "display" "none"
+            else
+                Attr.class "not-disabled"
+
+        orderToggle =
+            if order.orderedNames == [] && order.deferredNames == [] then
+                Attr.style "display" "none"
+            else
+                Attr.class "not-disabled"
     in
-    div [ Attr.class "order-track" ]
-        [ div [ Attr.class "order-main" ] (List.map entityBox order.entityNames)
-        , div [ Attr.class "order-deferred" ] (List.map deferredBox order.deferredNames)
+    div [ Attr.class "order-track", orderToggle ]
+        [ div [ Attr.class "order-main" ] (List.map entityBox order.orderedNames)
+        , div [ Attr.class "deferred-wrapper", deferredToggle ]
+            [ div [ Attr.class "deferred-header" ] [ text "Deferred" ]
+            , div [ Attr.class "order-deferred" ]
+                (List.map deferredBox order.deferredNames)
+            ]
         ]
 
 
@@ -259,3 +304,16 @@ entityDecoder =
 entityDecoderFromGameResult =
     D.at [ "result", "entities" ] (D.keyValuePairs entityDecoder)
         |> D.map (List.map Tuple.second)
+
+
+orderDecoderFromGameResult =
+    D.at [ "result", "order" ] <|
+        D.map3
+            TurnOrder
+            (D.field "order" (D.list D.string))
+            (D.field "deferred" (D.list D.string))
+            (D.field "current" (D.nullable D.int))
+
+
+modelDecoderFromGameResult =
+    D.map2 Model entityDecoderFromGameResult orderDecoderFromGameResult

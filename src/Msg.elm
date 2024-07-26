@@ -13,4 +13,4 @@ type Msg
     | SetFP EntityName Int
     | IncrementFP EntityName
     | DecrementFP EntityName
-    | GotGameData (Result Http.Error (List Entity))
+    | GotGameData (Result Http.Error Model)

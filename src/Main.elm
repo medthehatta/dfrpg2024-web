@@ -7,7 +7,7 @@ import FontAwesome.Brands as Icon
 import FontAwesome.Solid as Icon
 import FontAwesome.Styles as Icon
 import FontAwesome.Transforms as Icon
-import Home exposing (entityDecoderFromGameResult, home)
+import Home exposing (home, modelDecoderFromGameResult)
 import Html exposing (Html, div, img)
 import Html.Attributes exposing (src, style)
 import Http
@@ -20,16 +20,20 @@ refreshGameData : Cmd Msg
 refreshGameData =
     Http.get
         { url = "http://mancer.in:6501/game"
-        , expect = Http.expectJson GotGameData entityDecoderFromGameResult
+        , expect = Http.expectJson GotGameData modelDecoderFromGameResult
         }
 
 
 main : Program () Model Msg
 main =
+    let
+        initialOrder =
+            { orderedNames = [], deferredNames = [], current = Nothing }
+    in
     Browser.element
         { init =
             \_ ->
-                ( { entities = [], order = { entityNames = [], deferredNames = [] } }
+                ( { entities = [], order = initialOrder }
                 , refreshGameData
                 )
         , update = update
@@ -48,8 +52,8 @@ update msg model =
             in
             ( model, Cmd.none )
 
-        GotGameData (Ok entities) ->
-            ( { model | entities = entities }, Cmd.none )
+        GotGameData (Ok model_) ->
+            ( model_, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
