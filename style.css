@@ -22,12 +22,12 @@ a {
   grid-template-columns: auto;
   gap: 15px;
 }
-@media (min-width: 700px) {
+@media (min-width: 600px) {
     .entity-list {
       grid-template-columns: repeat(2, auto);
-    }
 }
-@media (min-width: 1600px) {
+}
+@media (min-width: 1200px) {
     .entity-list {
       grid-template-columns: repeat(3, auto);
     }
@@ -73,7 +73,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-right: 20px;
   text-align: right;
 }
 
