@@ -43,6 +43,7 @@ type alias Entity =
     , stresses : List StressTrack
     , fate : { refresh : Int, available : Int }
     , aspects : List Aspect
+    , isPc : Bool
     }
 
 

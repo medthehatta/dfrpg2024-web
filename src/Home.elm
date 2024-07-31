@@ -86,12 +86,14 @@ turnOrderV entities order =
         deferredToggle =
             if order.deferredNames == [] then
                 Attr.style "display" "none"
+
             else
                 Attr.class "not-disabled"
 
         orderToggle =
             if order.orderedNames == [] && order.deferredNames == [] then
                 Attr.style "display" "none"
+
             else
                 Attr.class "not-disabled"
     in
@@ -286,7 +288,7 @@ entityDecoder =
         elderSignPortrait =
             "https://imgur.com/WPk0XRj.png"
     in
-    D.map5
+    D.map6
         Entity
         (D.field "name" D.string)
         (D.maybe (D.field "portrait" D.string)
@@ -299,6 +301,9 @@ entityDecoder =
             (D.field "fate" D.int)
         )
         (D.field "aspects" <| D.list aspectDecoder)
+        (D.maybe (D.field "is_pc" <| D.bool)
+            |> D.andThen (Maybe.withDefault False >> D.succeed)
+        )
 
 
 entityDecoderFromGameResult =
