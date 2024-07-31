@@ -38,7 +38,10 @@ home entities order =
     div [ Attr.class "home-container" ]
         [ turnOrderV entities order
         , div [ Attr.class "entity-list" ]
-            (List.map entityV entities)
+            (entities
+                |> List.sortBy (\e -> (if e.isPc then 0 else 1, e.name))
+                |> List.map entityV
+            )
         ]
 
 
