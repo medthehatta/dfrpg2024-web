@@ -1,4 +1,4 @@
-module Home exposing (home, modelDecoderFromGameResult)
+module Home exposing (cmdReplyDecoder, home, modelDecoderFromGameResult)
 
 import Color
 import FontAwesome as Icon
@@ -9,7 +9,7 @@ import FontAwesome.Styles as Icon
 import FontAwesome.Transforms as Icon
 import Html exposing (Attribute, Html, a, button, code, div, h1, i, img, input, li, p, span, text, ul)
 import Html.Attributes as Attr
-import Html.Events exposing (keyCode, on, onClick)
+import Html.Events exposing (keyCode, on, onClick, onMouseOut, onMouseOver)
 import Json.Decode as D
 import Model exposing (..)
 import Msg exposing (Msg(..))
@@ -39,7 +39,16 @@ home entities order =
         [ turnOrderV entities order
         , div [ Attr.class "entity-list" ]
             (entities
-                |> List.sortBy (\e -> (if e.isPc then 0 else 1, e.name))
+                |> List.sortBy
+                    (\e ->
+                        ( if e.isPc then
+                            0
+
+                          else
+                            1
+                        , e.name
+                        )
+                    )
                 |> List.map entityV
             )
         ]
@@ -119,21 +128,21 @@ entityV entity =
                 ]
             , div [ Attr.class "entity-top-corner" ]
                 [ div [ Attr.class "entity-name" ] [ text entity.name ]
-                , fateContainerV entity entity.fate
+                , fateContainerV entity.name entity.fate True
                 ]
             , if entity.stresses == [] then
                 div [] []
 
               else
-                stressContainerV entity entity.stresses
+                stressContainerV entity
             ]
         , div [ Attr.class "entity-aspects" ]
             (List.map (aspectV entity.name) entity.aspects ++ [ aspectInput entity.name ])
         ]
 
 
-fateContainerV : Entity -> { refresh : Int, available : Int } -> Html Msg
-fateContainerV entity { refresh, available } =
+fateContainerV : EntityName -> { refresh : Int, available : Int } -> Bool -> Html Msg
+fateContainerV entityName { refresh, available } expanded =
     let
         refreshItems =
             if refresh /= 0 then
@@ -143,21 +152,40 @@ fateContainerV entity { refresh, available } =
 
             else
                 []
+
+        withCarets html =
+            div [ Attr.class "entity-carats" ]
+                [ span [ onClick (IncrementFP entityName) ] [ Icon.view Icon.caretUp ]
+                , html
+                , span [ onClick (DecrementFP entityName) ] [ Icon.view Icon.caretDown ]
+                ]
+
+        maybeWithCarets html =
+            if expanded then
+                withCarets html
+
+            else
+                html
+
+        hoverableFP htmlList =
+            div [ onMouseOver (HoverFP entityName), onMouseOut NoHoverFP, Attr.class "entity-fp" ]
+                htmlList
     in
-    if available == 0 && refresh == 0 then
-        div [ Attr.class "entity-fp" ] []
+    if available == 0 && refresh == 0 && not expanded then
+        maybeWithCarets <|
+            hoverableFP <|
+                [div [ Attr.class "entity-fp" ] []]
 
     else
-        div [ Attr.class "entity-fp" ]
-            ([ span [ Attr.class "entity-fp-avail" ] [ text <| String.fromInt available ]
-             , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
-             ]
-                ++ refreshItems
-            )
+        maybeWithCarets <|
+            hoverableFP <|
+                [ span [ Attr.class "entity-fp-avail" ] [ text (String.fromInt available) ]
+                , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
+                ]
 
 
-stressContainerV : Entity -> List StressTrack -> Html Msg
-stressContainerV entity stresses =
+stressContainerV : Entity -> Html Msg
+stressContainerV entity =
     div [ Attr.class "entity-stress-container" ]
         [ div [ Attr.class "entity-stress" ]
             (List.map (stressV entity.name) entity.stresses)
@@ -324,4 +352,8 @@ orderDecoderFromGameResult =
 
 
 modelDecoderFromGameResult =
-    D.map2 Model entityDecoderFromGameResult orderDecoderFromGameResult
+    D.map2 GameModel entityDecoderFromGameResult orderDecoderFromGameResult
+
+
+cmdReplyDecoder =
+    D.at [ "result", "ok" ] D.bool

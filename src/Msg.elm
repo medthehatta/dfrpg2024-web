@@ -13,4 +13,7 @@ type Msg
     | SetFP EntityName Int
     | IncrementFP EntityName
     | DecrementFP EntityName
-    | GotGameData (Result Http.Error Model)
+    | GotGameData (Result Http.Error GameModel)
+    | GotCmdReply (Result Http.Error Bool)
+    | HoverFP EntityName
+    | NoHoverFP

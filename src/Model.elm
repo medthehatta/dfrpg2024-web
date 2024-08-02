@@ -54,7 +54,18 @@ type alias TurnOrder =
     }
 
 
-type alias Model =
+type alias UIModel =
+    { fpHovered : Maybe EntityName
+    }
+
+
+type alias GameModel =
     { entities : List Entity
     , order : TurnOrder
+    }
+
+
+type alias Model =
+    { game : GameModel
+    , ui : UIModel
     }
