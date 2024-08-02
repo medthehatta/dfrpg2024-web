@@ -49,7 +49,7 @@ home entities order fpHovered =
                         , e.name
                         )
                     )
-                |> List.map (\e -> entityV  e (fpHovered == Just (e.name)))
+                |> List.map (\e -> entityV e (fpHovered == Just e.name))
             )
         ]
 
@@ -172,13 +172,13 @@ fateContainerV entityName { refresh, available } expanded =
                 [ html ]
     in
     if available == 0 && refresh == 0 && not expanded then
-        maybeWithCarets <|
-            hoverableFP <|
+        hoverableFP <|
+            maybeWithCarets <|
                 div [ Attr.class "entity-fp" ] []
 
     else
-        maybeWithCarets <|
-            hoverableFP <|
+        hoverableFP <|
+            maybeWithCarets <|
                 div [ Attr.class "entity-fp" ]
                     [ span [ Attr.class "entity-fp-avail" ] [ text (String.fromInt available) ]
                     , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
