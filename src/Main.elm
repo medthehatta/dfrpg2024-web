@@ -127,6 +127,20 @@ update msg model =
             in
             ( model, Cmd.none )
 
+        -- Internal UI Messages
+
+        HoverFP entityName ->
+            let
+                updatedUi = { fpHovered = Just entityName }
+            in
+            ( { model | ui = updatedUi }, Cmd.none )
+
+        NoHoverFP ->
+            let
+                updatedUi = { fpHovered = Nothing }
+            in
+            ( { model | ui = updatedUi }, Cmd.none )
+
         _ ->
             ( model, Cmd.none )
 
@@ -135,7 +149,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ Icon.css
-        , home model.game.entities model.game.order
+        , home model.game.entities model.game.order model.ui.fpHovered
         ]
 
 

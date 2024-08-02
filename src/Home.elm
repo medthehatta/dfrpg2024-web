@@ -33,8 +33,8 @@ nbsp =
     String.fromChar '\u{00A0}'
 
 
-home : List Entity -> TurnOrder -> Html Msg
-home entities order =
+home : List Entity -> TurnOrder -> Maybe EntityName -> Html Msg
+home entities order fpHovered =
     div [ Attr.class "home-container" ]
         [ turnOrderV entities order
         , div [ Attr.class "entity-list" ]
@@ -49,7 +49,7 @@ home entities order =
                         , e.name
                         )
                     )
-                |> List.map entityV
+                |> List.map (\e -> entityV  e (fpHovered == Just (e.name)))
             )
         ]
 
@@ -119,8 +119,8 @@ turnOrderV entities order =
         ]
 
 
-entityV : Entity -> Html Msg
-entityV entity =
+entityV : Entity -> Bool -> Html Msg
+entityV entity fpHovered =
     div [ Attr.class "entity" ]
         [ div [ Attr.class "entity-header" ]
             [ div [ Attr.class "entity-portrait" ]
@@ -128,7 +128,7 @@ entityV entity =
                 ]
             , div [ Attr.class "entity-top-corner" ]
                 [ div [ Attr.class "entity-name" ] [ text entity.name ]
-                , fateContainerV entity.name entity.fate True
+                , fateContainerV entity.name entity.fate fpHovered
                 ]
             , if entity.stresses == [] then
                 div [] []
@@ -167,21 +167,22 @@ fateContainerV entityName { refresh, available } expanded =
             else
                 html
 
-        hoverableFP htmlList =
-            div [ onMouseOver (HoverFP entityName), onMouseOut NoHoverFP, Attr.class "entity-fp" ]
-                htmlList
+        hoverableFP html =
+            div [ onMouseOver (HoverFP entityName), onMouseOut NoHoverFP ]
+                [ html ]
     in
     if available == 0 && refresh == 0 && not expanded then
         maybeWithCarets <|
             hoverableFP <|
-                [div [ Attr.class "entity-fp" ] []]
+                div [ Attr.class "entity-fp" ] []
 
     else
         maybeWithCarets <|
             hoverableFP <|
-                [ span [ Attr.class "entity-fp-avail" ] [ text (String.fromInt available) ]
-                , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
-                ]
+                div [ Attr.class "entity-fp" ]
+                    [ span [ Attr.class "entity-fp-avail" ] [ text (String.fromInt available) ]
+                    , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
+                    ]
 
 
 stressContainerV : Entity -> Html Msg
