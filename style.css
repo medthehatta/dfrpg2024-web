@@ -180,6 +180,12 @@ a {
 }
 .entity-fp-slash {}
 .entity-fp-refresh {}
+.entity-carats {
+    width: 100%;
+}
+.entity-hoverable-zone {
+    min-height: 10px;
+}
 
 .entity-aspects {
   display: flex;

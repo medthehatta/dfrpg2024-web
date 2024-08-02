@@ -49,7 +49,7 @@ main =
     Browser.element
         { init =
             \_ ->
-                ( {game = { entities = [], order = initialOrder}, ui = { fpHovered = Nothing } }
+                ( { game = { entities = [], order = initialOrder }, ui = { fpHovered = Nothing } }
                 , refreshGameData
                 )
         , update = update
@@ -115,7 +115,7 @@ update msg model =
             ( model, Cmd.none )
 
         GotGameData (Ok game_) ->
-            ( { model | game = game_}, Cmd.none )
+            ( { model | game = game_ }, Cmd.none )
 
         GotCmdReply (Ok True) ->
             ( model, refreshGameData )
@@ -128,16 +128,21 @@ update msg model =
             ( model, Cmd.none )
 
         -- Internal UI Messages
-
         HoverFP entityName ->
             let
-                updatedUi = { fpHovered = Just entityName }
+                updatedUi =
+                    if model.ui.fpHovered == Just entityName then
+                        { fpHovered = Nothing }
+
+                    else
+                        { fpHovered = Just entityName }
             in
             ( { model | ui = updatedUi }, Cmd.none )
 
         NoHoverFP ->
             let
-                updatedUi = { fpHovered = Nothing }
+                updatedUi =
+                    { fpHovered = Nothing }
             in
             ( { model | ui = updatedUi }, Cmd.none )
 

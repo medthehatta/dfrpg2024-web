@@ -153,32 +153,29 @@ fateContainerV entityName { refresh, available } expanded =
             else
                 []
 
-        withCarets html =
-            div [ Attr.class "entity-carats" ]
-                [ span [ onClick (IncrementFP entityName) ] [ Icon.view Icon.caretUp ]
-                , html
-                , span [ onClick (DecrementFP entityName) ] [ Icon.view Icon.caretDown ]
-                ]
-
         maybeWithCarets html =
             if expanded then
-                withCarets html
+                div []
+                    [ div [ Attr.class "entity-carats", onClick (IncrementFP entityName) ] [ Icon.view Icon.caretUp ]
+                    , html
+                    , div [ Attr.class "entity-carats", onClick (DecrementFP entityName) ] [ Icon.view Icon.caretDown ]
+                    ]
 
             else
-                html
+                div [] [ div [ Attr.class "entity-carats" ] [], html, div [ Attr.class "entity-carats" ] [] ]
 
         hoverableFP html =
-            div [ onMouseOver (HoverFP entityName), onMouseOut NoHoverFP ]
+            div [ Attr.class "entity-hoverable-zone", onClick (HoverFP entityName) ]
                 [ html ]
     in
     if available == 0 && refresh == 0 && not expanded then
-        hoverableFP <|
-            maybeWithCarets <|
+        maybeWithCarets <|
+            hoverableFP <|
                 div [ Attr.class "entity-fp" ] []
 
     else
-        hoverableFP <|
-            maybeWithCarets <|
+        maybeWithCarets <|
+            hoverableFP <|
                 div [ Attr.class "entity-fp" ]
                     [ span [ Attr.class "entity-fp-avail" ] [ text (String.fromInt available) ]
                     , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
