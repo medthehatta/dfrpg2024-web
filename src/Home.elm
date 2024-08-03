@@ -287,7 +287,7 @@ aspectInput entityName aspectInProgress =
 
         clickHandler =
             ifAspectForMe
-                (\_ -> (onClick CommitAspectInProgress))
+                (\_ -> onClick CommitAspectInProgress)
                 (Attr.class "no-aspect-in-progress")
 
         providedValue =
@@ -338,7 +338,9 @@ aspectDecoder =
         (D.maybe (D.field "kind" aspectKindDecoder)
             |> D.andThen (Maybe.withDefault Generic >> D.succeed)
         )
-        (D.maybe (D.field "tags" D.int) |> D.andThen (Maybe.withDefault 0 >> D.succeed))
+        (D.maybe (D.field "tags" D.int)
+            |> D.andThen (Maybe.withDefault 0 >> D.succeed)
+        )
 
 
 stressesDecoder =
@@ -372,7 +374,7 @@ entityDecoder =
             (D.field "fate" D.int)
         )
         (D.field "aspects" <| D.list aspectDecoder)
-        (D.maybe (D.field "is_pc" <| D.bool)
+        (D.maybe (D.field "is_pc" D.bool)
             |> D.andThen (Maybe.withDefault False >> D.succeed)
         )
 
