@@ -54,18 +54,21 @@ type alias TurnOrder =
     }
 
 
-type alias UIModel =
-    { fpHovered : Maybe EntityName
-    }
-
-
 type alias GameModel =
     { entities : List Entity
     , order : TurnOrder
     }
 
 
+type alias AspectInProgress =
+    { entity: EntityName
+    , kind: AspectKind
+    , name: String
+    }
+
+
 type alias Model =
     { game : GameModel
-    , ui : UIModel
+    , fpHovered : Maybe EntityName
+    , aspectInProgress: Maybe AspectInProgress
     }

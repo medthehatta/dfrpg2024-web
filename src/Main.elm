@@ -45,13 +45,15 @@ main =
     let
         initialOrder =
             { orderedNames = [], deferredNames = [], current = Nothing }
+
+        initialModel =
+            { fpHovered = Nothing
+            , aspectInProgress = Nothing
+            , game = { entities = [], order = initialOrder }
+            }
     in
     Browser.element
-        { init =
-            \_ ->
-                ( { game = { entities = [], order = initialOrder }, ui = { fpHovered = Nothing } }
-                , refreshGameData
-                )
+        { init = \_ -> ( initialModel, refreshGameData )
         , update = update
         , view = view
         , subscriptions = subscriptions
@@ -131,20 +133,91 @@ update msg model =
         HoverFP entityName ->
             let
                 updatedUi =
-                    if model.ui.fpHovered == Just entityName then
-                        { fpHovered = Nothing }
+                    if model.fpHovered == Just entityName then
+                        { model | fpHovered = Nothing }
 
                     else
-                        { fpHovered = Just entityName }
+                        { model | fpHovered = Just entityName }
             in
-            ( { model | ui = updatedUi }, Cmd.none )
+            ( updatedUi, Cmd.none )
 
         NoHoverFP ->
             let
                 updatedUi =
-                    { fpHovered = Nothing }
+                    { model | fpHovered = Nothing }
             in
-            ( { model | ui = updatedUi }, Cmd.none )
+            ( updatedUi, Cmd.none )
+
+        EditAspectText entityName text ->
+            let
+                edit =
+                    { entity = entityName, name = text, kind = Generic }
+            in
+            case model.aspectInProgress of
+                Nothing ->
+                    ( { model | aspectInProgress = Just edit }, Cmd.none )
+
+                Just { entity, name, kind } ->
+                    let
+                        newAIP =
+                            { entity = entityName, name = text, kind = kind }
+                    in
+                    ( { model | aspectInProgress = Just newAIP }, Cmd.none )
+
+        EditAspectKind entityName newKind ->
+            let
+                edit =
+                    { entity = entityName, name = "", kind = newKind }
+            in
+            case model.aspectInProgress of
+                Nothing ->
+                    ( { model | aspectInProgress = Just edit }, Cmd.none )
+
+                Just { entity, name, kind } ->
+                    let
+                        newAIP =
+                            { entity = entityName, name = name, kind = newKind }
+                    in
+                    ( { model | aspectInProgress = Just newAIP }, Cmd.none )
+
+        CommitAspectInProgress ->
+            case model.aspectInProgress of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just { entity, name, kind } ->
+                    let
+                        kindStr =
+                            case kind of
+                                Generic ->
+                                    ""
+
+                                Fragile ->
+                                    "fragile"
+
+                                Sticky ->
+                                    "sticky"
+
+                                Consequence Mild ->
+                                    "mild"
+
+                                Consequence Moderate ->
+                                    "moderate"
+
+                                Consequence Severe ->
+                                    "severe"
+
+                        numTags =
+                            1
+                    in
+                    issueCmd
+                        "add_aspect"
+                        [ ( "entity", Encode.string entity )
+                        , ( "name", Encode.string name )
+                        , ( "kind", Encode.string kindStr )
+                        , ( "tags", Encode.int numTags )
+                        ]
+                        |> (\( m, c ) -> ( { m | aspectInProgress = Nothing }, c ))
 
         _ ->
             ( model, Cmd.none )
@@ -154,7 +227,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ Icon.css
-        , home model.game.entities model.game.order model.ui.fpHovered
+        , home model
         ]
 
 

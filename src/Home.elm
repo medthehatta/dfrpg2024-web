@@ -9,7 +9,7 @@ import FontAwesome.Styles as Icon
 import FontAwesome.Transforms as Icon
 import Html exposing (Attribute, Html, a, button, code, div, h1, i, img, input, li, p, span, text, ul)
 import Html.Attributes as Attr
-import Html.Events exposing (keyCode, on, onClick, onMouseOut, onMouseOver)
+import Html.Events exposing (keyCode, on, onClick, onInput)
 import Json.Decode as D
 import Model exposing (..)
 import Msg exposing (Msg(..))
@@ -33,8 +33,21 @@ nbsp =
     String.fromChar '\u{00A0}'
 
 
-home : List Entity -> TurnOrder -> Maybe EntityName -> Html Msg
-home entities order fpHovered =
+home : Model -> Html Msg
+home model =
+    let
+        entities =
+            model.game.entities
+
+        order =
+            model.game.order
+
+        fpHovered =
+            model.fpHovered
+
+        aspectInProgress =
+            model.aspectInProgress
+    in
     div [ Attr.class "home-container" ]
         [ turnOrderV entities order
         , div [ Attr.class "entity-list" ]
@@ -49,7 +62,7 @@ home entities order fpHovered =
                         , e.name
                         )
                     )
-                |> List.map (\e -> entityV e (fpHovered == Just e.name))
+                |> List.map (\e -> entityV e (fpHovered == Just e.name) aspectInProgress)
             )
         ]
 
@@ -119,8 +132,8 @@ turnOrderV entities order =
         ]
 
 
-entityV : Entity -> Bool -> Html Msg
-entityV entity fpHovered =
+entityV : Entity -> Bool -> Maybe AspectInProgress -> Html Msg
+entityV entity fpHovered aspectInProgress =
     div [ Attr.class "entity" ]
         [ div [ Attr.class "entity-header" ]
             [ div [ Attr.class "entity-portrait" ]
@@ -137,7 +150,7 @@ entityV entity fpHovered =
                 stressContainerV entity
             ]
         , div [ Attr.class "entity-aspects" ]
-            (List.map (aspectV entity.name) entity.aspects ++ [ aspectInput entity.name ])
+            (List.map (aspectV entity.name) entity.aspects ++ [ aspectInput entity.name aspectInProgress ])
         ]
 
 
@@ -242,21 +255,50 @@ aspectV entityName { name, kind, tags } =
 
         tagSpan =
             span [ Attr.class "aspect-tags", onClick <| TagAspect entityName name ] (List.repeat tags (Icon.view Icon.hashtag))
+
+        onClickX =
+            onClick (RemoveAspect entityName name)
     in
     div [ Attr.class "aspect" ]
         [ headSpan
         , tagSpan
         , span [ Attr.class "aspect-text" ] [ text name ]
-        , a [ Attr.class "aspect-button", Attr.href "#" ] [ Icon.view Icon.x ]
+        , a [ Attr.class "aspect-button", onClickX ] [ Icon.view Icon.x ]
         ]
 
 
-aspectInput : EntityName -> Html Msg
-aspectInput entityName =
+aspectInput : EntityName -> Maybe AspectInProgress -> Html Msg
+aspectInput entityName aspectInProgress =
+    let
+        inHandler =
+            onInput (EditAspectText entityName)
+
+        ifAspectForMe yes no =
+            case aspectInProgress of
+                Nothing ->
+                    no
+
+                Just ({ entity, kind, name } as ent) ->
+                    if entity == entityName then
+                        yes ent
+
+                    else
+                        no
+
+        clickHandler =
+            ifAspectForMe
+                (\_ -> (onClick CommitAspectInProgress))
+                (Attr.class "no-aspect-in-progress")
+
+        providedValue =
+            ifAspectForMe
+                (\e -> Attr.value e.name)
+                (Attr.value "")
+    in
     div [ Attr.class "aspect", Attr.class "aspect-input" ]
         [ span [ Attr.class "aspect-head", Attr.class "aspect-generic" ] []
-        , input [ Attr.class "aspect-text", Attr.placeholder "Add Aspect..." ] []
-        , a [ Attr.class "aspect-button", Attr.href "#" ] [ Icon.view Icon.check ]
+        , input [ Attr.class "aspect-text", Attr.placeholder "Add Aspect...", inHandler, providedValue ] []
+        , a [ Attr.class "aspect-button", clickHandler ] [ Icon.view Icon.check ]
         ]
 
 
@@ -296,7 +338,7 @@ aspectDecoder =
         (D.maybe (D.field "kind" aspectKindDecoder)
             |> D.andThen (Maybe.withDefault Generic >> D.succeed)
         )
-        (D.field "tags" D.int)
+        (D.maybe (D.field "tags" D.int) |> D.andThen (Maybe.withDefault 0 >> D.succeed))
 
 
 stressesDecoder =
