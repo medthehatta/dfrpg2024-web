@@ -94,19 +94,49 @@ update msg model =
                 "decrement_fp"
                 [ ( "entity", Encode.string entityName ) ]
 
-        AddAspect entityName aspectName ->
-            issueCmd
-                "add_aspect"
-                [ ( "name", Encode.string aspectName )
-                , ( "entity", Encode.string entityName )
-                ]
-
         RemoveAspect entityName aspectName ->
             issueCmd
                 "remove_aspect"
-                [ ( "name", Encode.string aspectName )
-                , ( "entity", Encode.string entityName )
-                ]
+                [("entity", Encode.string entityName), ("name", Encode.string aspectName)]
+
+        CommitAspectInProgress ->
+            case model.aspectInProgress of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just { entity, name, kind } ->
+                    let
+                        kindAttr =
+                            case kind of
+                                Generic ->
+                                    []
+
+                                Fragile ->
+                                    [ ( "kind", Encode.string "fragile" ) ]
+
+                                Sticky ->
+                                    [ ( "kind", Encode.string "sticky" ) ]
+
+                                Consequence Mild ->
+                                    [ ( "kind", Encode.string "mild" ) ]
+
+                                Consequence Moderate ->
+                                    [ ( "kind", Encode.string "moderate" ) ]
+
+                                Consequence Severe ->
+                                    [ ( "kind", Encode.string "severe" ) ]
+
+                        numTags =
+                            1
+                    in
+                    issueCmd
+                        "add_aspect"
+                        ([ ( "entity", Encode.string entity )
+                         , ( "name", Encode.string name )
+                         ]
+                            ++ kindAttr
+                        )
+                        |> (\( m, c ) -> ( { m | aspectInProgress = Nothing }, c ))
 
         -- HTTP Responses
         GotGameData (Err error) ->
@@ -179,45 +209,6 @@ update msg model =
                             { entity = entityName, name = name, kind = newKind }
                     in
                     ( { model | aspectInProgress = Just newAIP }, Cmd.none )
-
-        CommitAspectInProgress ->
-            case model.aspectInProgress of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just { entity, name, kind } ->
-                    let
-                        kindStr =
-                            case kind of
-                                Generic ->
-                                    ""
-
-                                Fragile ->
-                                    "fragile"
-
-                                Sticky ->
-                                    "sticky"
-
-                                Consequence Mild ->
-                                    "mild"
-
-                                Consequence Moderate ->
-                                    "moderate"
-
-                                Consequence Severe ->
-                                    "severe"
-
-                        numTags =
-                            1
-                    in
-                    issueCmd
-                        "add_aspect"
-                        [ ( "entity", Encode.string entity )
-                        , ( "name", Encode.string name )
-                        , ( "kind", Encode.string kindStr )
-                        , ( "tags", Encode.int numTags )
-                        ]
-                        |> (\( m, c ) -> ( { m | aspectInProgress = Nothing }, c ))
 
         _ ->
             ( model, Cmd.none )
