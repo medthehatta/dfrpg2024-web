@@ -154,6 +154,13 @@ update msg model =
                             )
                             |> (\( m, c ) -> ( { m | edit = NotEditing }, c ))
 
+        TagAspect entityName aspectStr ->
+            issueCmd
+                "tag_aspect"
+                [ ( "entity", Encode.string entityName )
+                , ( "name", Encode.string aspectStr )
+                ]
+
         -- HTTP Responses
         GotGameData (Err error) ->
             let
