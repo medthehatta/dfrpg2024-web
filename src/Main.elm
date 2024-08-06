@@ -151,7 +151,7 @@ update msg model =
                              ]
                                 ++ kindAttr
                             )
-                            |> (\( m, c ) -> ( { m | edit = NotEditing}, c))
+                            |> (\( m, c ) -> ( { m | edit = NotEditing }, c ))
 
         -- HTTP Responses
         GotGameData (Err error) ->
@@ -192,23 +192,23 @@ update msg model =
             ( newModel, Cmd.none )
 
         NoHoverFP ->
-            ( { model | edit = NotEditing}, Cmd.none )
+            ( { model | edit = NotEditing }, Cmd.none )
 
         EditAspectText entityName text ->
             case model.edit of
                 EditingAspectString _ aspectKind _ ->
-                    ( { model | edit = EditingAspectString entityName aspectKind text }, Cmd.none)
+                    ( { model | edit = EditingAspectString entityName aspectKind text }, Cmd.none )
 
                 _ ->
-                    ( { model | edit = EditingAspectString entityName Generic text }, Cmd.none)
+                    ( { model | edit = EditingAspectString entityName Generic text }, Cmd.none )
 
         EditAspectKind entityName newKind ->
             case model.edit of
                 EditingAspectString _ _ aspectStr ->
-                    ( { model | edit = EditingAspectString entityName newKind aspectStr }, Cmd.none)
+                    ( { model | edit = EditingAspectString entityName newKind aspectStr }, Cmd.none )
 
                 _ ->
-                    ( { model | edit = EditingAspectString entityName newKind "" }, Cmd.none)
+                    ( { model | edit = EditingAspectString entityName newKind "" }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
