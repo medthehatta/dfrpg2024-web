@@ -70,7 +70,13 @@ type alias AspectInProgress =
 type alias Model =
     { game : GameModel
     , edit : EditInProgress
+    , error : HasError
     }
+
+
+type HasError =
+    NotHasError
+    | HasError String
 
 
 type EditInProgress
@@ -78,3 +84,8 @@ type EditInProgress
     | EditingFatePoints EntityName
     | EditingAspectString EntityName AspectKind String
     | EditingAspectKind EntityName AspectKind String
+
+
+type CommandError
+    = NoError
+    | CommandError String

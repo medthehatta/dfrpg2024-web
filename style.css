@@ -282,3 +282,15 @@ a {
   cursor: pointer;
   padding: 1px;
 }
+.error-box {
+    background-color: #ff9090;
+    font-weight: bold;
+    padding: 5px;
+    margin: 5px;
+    border: solid 1px black;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: horizontal;
+    justify-content: center;
+    gap: 10px;
+}

@@ -49,6 +49,7 @@ main =
         initialModel =
             { edit = NotEditing
             , game = { entities = [], order = initialOrder }
+            , error = NotHasError
             }
     in
     Browser.element
@@ -164,23 +165,18 @@ update msg model =
         -- HTTP Responses
         GotGameData (Err error) ->
             let
-                _ =
-                    Debug.log "error: " error
+                _ = Debug.log "Encountered error: " error
             in
-            ( model, Cmd.none )
+            ( { model | error = HasError "Encountered an error, please try again" }, Cmd.none )
 
         GotGameData (Ok game_) ->
             ( { model | game = game_ }, Cmd.none )
 
-        GotCmdReply (Ok True) ->
-            ( model, refreshGameData )
+        GotCmdReply (Ok NoError) ->
+            ( {model | error = NotHasError}, refreshGameData )
 
-        GotCmdReply (Ok False) ->
-            let
-                _ =
-                    Debug.log "error found" ""
-            in
-            ( model, Cmd.none )
+        GotCmdReply (Ok (CommandError description)) ->
+            ( { model | error = HasError description }, Cmd.none )
 
         -- Internal UI Messages
         HoverFP entityName ->

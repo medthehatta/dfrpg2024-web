@@ -40,7 +40,8 @@ home model =
             model.game.entities
     in
     div [ Attr.class "home-container" ]
-        [ turnOrderV model
+        [ maybeError model
+        , turnOrderV model
         , div [ Attr.class "entity-list" ]
             (entities
                 |> List.sortBy
@@ -56,6 +57,19 @@ home model =
                 |> List.map (\e -> entityV model e)
             )
         ]
+
+
+maybeError : Model -> Html Msg
+maybeError model =
+    case model.error of
+        NotHasError ->
+            div [] []
+
+        HasError description ->
+            div [ Attr.class "error-box" ]
+                [ Icon.view Icon.triangleExclamation
+                , text <| description ++ "  (Try refreshing?)"
+                ]
 
 
 turnOrderV : Model -> Html Msg
@@ -304,7 +318,6 @@ aspectV model entity aspect =
                     else
                         onClick (EditAspect entityName k "")
 
-
                 _ ->
                     onClick (EditAspect entityName Generic "")
 
@@ -505,4 +518,19 @@ modelDecoderFromGameResult =
 
 
 cmdReplyDecoder =
+    let
+        successDecoder =
+            D.succeed NoError
+
+        failDecoder =
+            D.map CommandError (D.at [ "result", "description" ] D.string)
+    in
     D.at [ "result", "ok" ] D.bool
+        |> D.andThen
+            (\ok ->
+                if ok then
+                    successDecoder
+
+                else
+                    failDecoder
+            )
