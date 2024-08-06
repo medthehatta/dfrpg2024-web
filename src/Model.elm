@@ -61,15 +61,22 @@ type alias GameModel =
 
 
 type alias AspectInProgress =
-    { entity: EntityName
-    , kind: AspectKind
-    , name: String
+    { entity : EntityName
+    , kind : AspectKind
+    , name : String
     }
 
 
 type alias Model =
     { game : GameModel
     , fpHovered : Maybe EntityName
-    , aspectInProgress: Maybe AspectInProgress
-    , editAspectKindOpen: Bool
+    , aspectInProgress : Maybe AspectInProgress
+    , editAspectKindOpen : Bool
     }
+
+
+type EditInProgress
+    = NotEditing
+    | EditingFatePoints EntityName
+    | EditingAspectString EntityName AspectKind String
+    | EditingAspectKind EntityName AspectKind String
