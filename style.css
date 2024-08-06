@@ -222,6 +222,9 @@ a {
   align-items: center;
   justify-content: center;
 }
+.aspect-head-listing {
+  cursor: pointer;
+}
 .aspect-mild {
   background-color: #f0a0a0;
 }

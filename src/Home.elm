@@ -132,17 +132,6 @@ turnOrderV model =
 entityV : Model -> Entity -> Html Msg
 entityV model entity =
     let
-        aspectInProgress =
-            case model.edit of
-                EditingAspectString entityName aspectKind aspectStr ->
-                    Just { entity = entityName, kind = aspectKind, name = aspectStr }
-
-                EditingAspectKind entityName aspectKind aspectStr ->
-                    Just { entity = entityName, kind = aspectKind, name = aspectStr }
-
-                _ ->
-                    Nothing
-
         onClickEditAspect =
             onClick (EditAspectText entity.name "")
 
@@ -152,16 +141,23 @@ entityV model entity =
                 [ Icon.view Icon.plus ]
 
         maybeEdit =
-            case aspectInProgress of
-                Nothing ->
-                    addButton
-
-                Just aip ->
-                    if aip.entity == entity.name then
-                        aspectInput model entity
+            case model.edit of
+                EditingAspectString entityName aspectKind aspectStr ->
+                    if entityName == entity.name then
+                        aspectV model entity { tags = 1, name = aspectStr, kind = aspectKind }
 
                     else
                         addButton
+
+                EditingAspectKind entityName aspectKind aspectStr ->
+                    if entityName == entity.name then
+                        aspectV model entity { tags = 1, name = aspectStr, kind = aspectKind }
+
+                    else
+                        addButton
+
+                _ ->
+                    addButton
     in
     div [ Attr.class "entity" ]
         [ div [ Attr.class "entity-header" ]
@@ -292,33 +288,57 @@ aspectV model entity aspect =
         tags =
             aspect.tags
 
+        onClickEditAspectKind k =
+            case model.edit of
+                EditingAspectKind eName aKind aStr ->
+                    if eName == entityName && aStr == aspect.name && aKind == k then
+                        onClick (EditAspectText eName aStr)
+
+                    else
+                        onClick (EditAspectKind entityName k)
+
+                EditingAspectString eName aKind aStr ->
+                    onClick (EditAspectKind entityName k)
+
+                _ ->
+                    onClick (EditAspectKind entityName Generic)
+
         headSpan k =
             case k of
                 Generic ->
-                    span [ Attr.class "aspect-head", Attr.class "aspect-generic" ] [ text <| nbsp ]
+                    span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-generic" ] [ text <| nbsp ]
 
                 Consequence sev ->
                     case sev of
                         Mild ->
-                            span [ Attr.class "aspect-head", Attr.class "aspect-mild" ] [ text "mild" ]
+                            span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-mild" ] [ text "mild" ]
 
                         Moderate ->
-                            span [ Attr.class "aspect-head", Attr.class "aspect-moderate" ] [ text "mod" ]
+                            span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-moderate" ] [ text "mod" ]
 
                         Severe ->
-                            span [ Attr.class "aspect-head", Attr.class "aspect-severe" ] [ text "sev" ]
+                            span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-severe" ] [ text "sev" ]
 
                 Fragile ->
-                    span [ Attr.class "aspect-head", Attr.class "aspect-fragile" ] [ text "f" ]
+                    span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-fragile" ] [ text "f" ]
 
                 Sticky ->
-                    span [ Attr.class "aspect-head", Attr.class "aspect-sticky" ] [ text "s" ]
+                    span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-sticky" ] [ text "s" ]
+
+        allKinds =
+            [ Generic
+            , Consequence Mild
+            , Consequence Moderate
+            , Consequence Severe
+            , Fragile
+            , Sticky
+            ]
 
         kindEditSpan =
             case model.edit of
                 EditingAspectKind eName aspectKind aspectStr ->
                     if eName == entityName then
-                        span [] []
+                        ul [ Attr.class "aspect-head-listing" ] (List.map headSpan allKinds)
 
                     else
                         headSpan kind
@@ -331,62 +351,57 @@ aspectV model entity aspect =
 
         onClickX =
             onClick (RemoveAspect entityName name)
-    in
-    div [ Attr.class "aspect" ]
-        [ kindEditSpan
-        , tagSpan
-        , span [ Attr.class "aspect-text" ] [ text name ]
-        , a [ Attr.class "aspect-button", onClickX ] [ Icon.view Icon.x ]
-        ]
-
-
-aspectInput : Model -> Entity -> Html Msg
-aspectInput model entity =
-    let
-        entityName =
-            entity.name
-
-        aspectInProgress =
-            case model.edit of
-                EditingAspectString eName aspectKind aspectStr ->
-                    Just { entity = eName, kind = aspectKind, name = aspectStr }
-
-                EditingAspectKind eName aspectKind aspectStr ->
-                    Just { entity = eName, kind = aspectKind, name = aspectStr }
-
-                _ ->
-                    Nothing
-
-        inHandler =
-            onInput (EditAspectText entityName)
 
         ifAspectForMe yes no =
-            case aspectInProgress of
-                Nothing ->
-                    no
-
-                Just ent ->
-                    if ent.entity == entityName then
-                        yes ent
+            case model.edit of
+                EditingAspectString eName aKind aString ->
+                    if eName == entityName && aString == aspect.name then
+                        yes entity
 
                     else
                         no
 
-        clickHandler =
+                EditingAspectKind eName aKind aString ->
+                    if eName == entityName && aString == aspect.name then
+                        yes entity
+
+                    else
+                        no
+
+                _ ->
+                    no
+
+        inHandler =
+            onInput (EditAspectText entityName)
+
+        onClickCheck =
             ifAspectForMe
                 (\_ -> onClick CommitAspectInProgress)
                 (Attr.class "no-aspect-in-progress")
 
         providedValue =
             ifAspectForMe
-                (\e -> Attr.value e.name)
+                (\e -> Attr.value aspect.name)
                 (Attr.value "")
+
+        notEditing =
+            div [ Attr.class "aspect" ]
+                [ kindEditSpan
+                , tagSpan
+                , span [ Attr.class "aspect-text" ] [ text name ]
+                , a [ Attr.class "aspect-button", onClickX ] [ Icon.view Icon.x ]
+                ]
+
+        withEditing =
+            div [ Attr.class "aspect", Attr.class "aspect-input" ]
+                [ kindEditSpan
+                , input [ Attr.class "aspect-text", Attr.placeholder "Add Aspect...", inHandler, providedValue ] []
+                , a [ Attr.class "aspect-button", onClickCheck ] [ Icon.view Icon.check ]
+                ]
     in
-    div [ Attr.class "aspect", Attr.class "aspect-input" ]
-        [ span [ Attr.class "aspect-head", Attr.class "aspect-generic" ] []
-        , input [ Attr.class "aspect-text", Attr.placeholder "Add Aspect...", inHandler, providedValue ] []
-        , a [ Attr.class "aspect-button", clickHandler ] [ Icon.view Icon.check ]
-        ]
+    ifAspectForMe
+        (\e -> withEditing)
+        notEditing
 
 
 

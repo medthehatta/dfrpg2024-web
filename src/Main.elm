@@ -204,19 +204,37 @@ update msg model =
 
         EditAspectText entityName text ->
             case model.edit of
-                EditingAspectString _ aspectKind _ ->
-                    ( { model | edit = EditingAspectString entityName aspectKind text }, Cmd.none )
+                EditingAspectString eName aKind aStr ->
+                    if eName == entityName then
+                        ( { model | edit = EditingAspectString entityName aKind text }, Cmd.none )
+                    else
+                        ( { model | edit = EditingAspectString entityName Generic "" }, Cmd.none )
+
+                EditingAspectKind eName aKind aStr ->
+                    if eName == entityName then
+                        ( { model | edit = EditingAspectString entityName aKind text }, Cmd.none )
+                    else
+                        ( { model | edit = EditingAspectString entityName Generic "" }, Cmd.none )
 
                 _ ->
-                    ( { model | edit = EditingAspectString entityName Generic text }, Cmd.none )
+                    ( { model | edit = EditingAspectString entityName Generic "" }, Cmd.none )
 
-        EditAspectKind entityName newKind ->
+        EditAspectKind entityName kind ->
             case model.edit of
-                EditingAspectString _ _ aspectStr ->
-                    ( { model | edit = EditingAspectString entityName newKind aspectStr }, Cmd.none )
+                EditingAspectString eName aKind aStr ->
+                    if eName == entityName then
+                        ( { model | edit = EditingAspectKind entityName kind aStr }, Cmd.none )
+                    else
+                        ( { model | edit = EditingAspectKind entityName Generic "" }, Cmd.none )
+
+                EditingAspectKind eName aKind aStr ->
+                    if eName == entityName then
+                        ( { model | edit = EditingAspectKind entityName kind aStr }, Cmd.none )
+                    else
+                        ( { model | edit = EditingAspectKind entityName Generic "" }, Cmd.none )
 
                 _ ->
-                    ( { model | edit = EditingAspectString entityName newKind "" }, Cmd.none )
+                    ( { model | edit = EditingAspectKind entityName Generic "" }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
