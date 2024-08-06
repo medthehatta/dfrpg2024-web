@@ -49,6 +49,7 @@ main =
         initialModel =
             { fpHovered = Nothing
             , aspectInProgress = Nothing
+            , editAspectKindOpen = False
             , game = { entities = [], order = initialOrder }
             }
     in
@@ -97,7 +98,7 @@ update msg model =
         RemoveAspect entityName aspectName ->
             issueCmd
                 "remove_aspect"
-                [("entity", Encode.string entityName), ("name", Encode.string aspectName)]
+                [ ( "entity", Encode.string entityName ), ( "name", Encode.string aspectName ) ]
 
         CommitAspectInProgress ->
             case model.aspectInProgress of
@@ -105,6 +106,10 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just { entity, name, kind } ->
+                    if name == "" then
+                        ( { model | aspectInProgress = Nothing }, Cmd.none )
+
+                    else
                     let
                         kindAttr =
                             case kind of

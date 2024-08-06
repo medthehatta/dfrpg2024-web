@@ -49,7 +49,7 @@ home model =
             model.aspectInProgress
     in
     div [ Attr.class "home-container" ]
-        [ turnOrderV entities order
+        [ turnOrderV model
         , div [ Attr.class "entity-list" ]
             (entities
                 |> List.sortBy
@@ -62,14 +62,20 @@ home model =
                         , e.name
                         )
                     )
-                |> List.map (\e -> entityV e (fpHovered == Just e.name) aspectInProgress)
+                |> List.map (\e -> entityV model e)
             )
         ]
 
 
-turnOrderV : List Entity -> TurnOrder -> Html Msg
-turnOrderV entities order =
+turnOrderV : Model -> Html Msg
+turnOrderV model =
     let
+        entities =
+            model.game.entities
+
+        order =
+            model.game.order
+
         portrait name =
             List.filter (\x -> x.name == name) entities
                 |> List.map (\x -> x.portrait)
@@ -132,8 +138,43 @@ turnOrderV entities order =
         ]
 
 
-entityV : Entity -> Bool -> Maybe AspectInProgress -> Html Msg
-entityV entity fpHovered aspectInProgress =
+entityV : Model -> Entity -> Html Msg
+entityV model entity =
+    let
+        fpHovered =
+            model.fpHovered
+
+        aspectInProgress =
+            model.aspectInProgress
+
+        onClickEditAspect =
+            onClick (EditAspectText entity.name "")
+
+        addButton =
+            a
+                [ Attr.class "aspect-add-button", onClickEditAspect ]
+                [ Icon.view Icon.plus ]
+
+        aspectBeingEdited =
+            case aspectInProgress of
+                Nothing ->
+                    aspectV model entity { name = "", kind = Generic, tags = 0 }
+
+                Just aip ->
+                    aspectV model entity { name = aip.name, kind = aip.kind, tags = 0 }
+
+        maybeEdit =
+            case aspectInProgress of
+                Nothing ->
+                    addButton
+
+                Just aip ->
+                    if aip.entity == entity.name then
+                        aspectInput model entity
+
+                    else
+                        addButton
+    in
     div [ Attr.class "entity" ]
         [ div [ Attr.class "entity-header" ]
             [ div [ Attr.class "entity-portrait" ]
@@ -141,22 +182,34 @@ entityV entity fpHovered aspectInProgress =
                 ]
             , div [ Attr.class "entity-top-corner" ]
                 [ div [ Attr.class "entity-name" ] [ text entity.name ]
-                , fateContainerV entity.name entity.fate fpHovered
+                , fateContainerV model entity
                 ]
             , if entity.stresses == [] then
                 div [] []
 
               else
-                stressContainerV entity
+                stressContainerV model entity
             ]
         , div [ Attr.class "entity-aspects" ]
-            (List.map (aspectV entity.name) entity.aspects ++ [ aspectInput entity.name aspectInProgress ])
+            (List.map (aspectV model entity) entity.aspects ++ [ maybeEdit ])
         ]
 
 
-fateContainerV : EntityName -> { refresh : Int, available : Int } -> Bool -> Html Msg
-fateContainerV entityName { refresh, available } expanded =
+fateContainerV : Model -> Entity -> Html Msg
+fateContainerV model entity =
     let
+        entityName =
+            entity.name
+
+        refresh =
+            entity.fate.refresh
+
+        available =
+            entity.fate.available
+
+        expanded =
+            model.fpHovered == Just entity.name
+
         refreshItems =
             if refresh /= 0 then
                 [ span [ Attr.class "entity-fp-slash" ] [ text "/" ]
@@ -195,17 +248,20 @@ fateContainerV entityName { refresh, available } expanded =
                     ]
 
 
-stressContainerV : Entity -> Html Msg
-stressContainerV entity =
+stressContainerV : Model -> Entity -> Html Msg
+stressContainerV model entity =
     div [ Attr.class "entity-stress-container" ]
         [ div [ Attr.class "entity-stress" ]
-            (List.map (stressV entity.name) entity.stresses)
+            (List.map (stressV model entity) entity.stresses)
         ]
 
 
-stressV : EntityName -> StressTrack -> Html Msg
-stressV entityName stress =
+stressV : Model -> Entity -> StressTrack -> Html Msg
+stressV model entity stress =
     let
+        entityName =
+            entity.name
+
         filled slot =
             span [ Attr.class "stress-circle", Attr.class "stress-circle-filled", onClick <| FreeStressBox entityName stress.name slot ] [ text <| String.fromInt slot ]
 
@@ -228,11 +284,23 @@ stressV entityName stress =
         ]
 
 
-aspectV : EntityName -> Aspect -> Html Msg
-aspectV entityName { name, kind, tags } =
+aspectV : Model -> Entity -> Aspect -> Html Msg
+aspectV model entity aspect =
     let
-        headSpan =
-            case kind of
+        entityName =
+            entity.name
+
+        name =
+            aspect.name
+
+        kind =
+            aspect.kind
+
+        tags =
+            aspect.tags
+
+        headSpan k =
+            case k of
                 Generic ->
                     span [ Attr.class "aspect-head", Attr.class "aspect-generic" ] [ text <| nbsp ]
 
@@ -260,16 +328,22 @@ aspectV entityName { name, kind, tags } =
             onClick (RemoveAspect entityName name)
     in
     div [ Attr.class "aspect" ]
-        [ headSpan
+        [ headSpan kind
         , tagSpan
         , span [ Attr.class "aspect-text" ] [ text name ]
         , a [ Attr.class "aspect-button", onClickX ] [ Icon.view Icon.x ]
         ]
 
 
-aspectInput : EntityName -> Maybe AspectInProgress -> Html Msg
-aspectInput entityName aspectInProgress =
+aspectInput : Model -> Entity -> Html Msg
+aspectInput model entity =
     let
+        entityName =
+            entity.name
+
+        aspectInProgress =
+            model.aspectInProgress
+
         inHandler =
             onInput (EditAspectText entityName)
 
@@ -278,8 +352,8 @@ aspectInput entityName aspectInProgress =
                 Nothing ->
                     no
 
-                Just ({ entity, kind, name } as ent) ->
-                    if entity == entityName then
+                Just ent ->
+                    if ent.entity == entityName then
                         yes ent
 
                     else

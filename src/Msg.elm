@@ -20,3 +20,4 @@ type Msg
     | EditAspectText EntityName String
     | EditAspectKind EntityName AspectKind
     | CommitAspectInProgress
+    | OpenEditAspectKindMenu EntityName
