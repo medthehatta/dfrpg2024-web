@@ -202,39 +202,32 @@ update msg model =
         NoHoverFP ->
             ( { model | edit = NotEditing }, Cmd.none )
 
-        EditAspectText entityName text ->
+        OpenEditAspectKind ->
             case model.edit of
                 EditingAspectString eName aKind aStr ->
-                    if eName == entityName then
-                        ( { model | edit = EditingAspectString entityName aKind text }, Cmd.none )
-                    else
-                        ( { model | edit = EditingAspectString entityName Generic "" }, Cmd.none )
-
-                EditingAspectKind eName aKind aStr ->
-                    if eName == entityName then
-                        ( { model | edit = EditingAspectString entityName aKind text }, Cmd.none )
-                    else
-                        ( { model | edit = EditingAspectString entityName Generic "" }, Cmd.none )
+                    ( { model | edit = EditingAspectKind eName aKind aStr }, Cmd.none )
 
                 _ ->
-                    ( { model | edit = EditingAspectString entityName Generic "" }, Cmd.none )
+                    ( { model | edit = NotEditing }, Cmd.none )
 
-        EditAspectKind entityName kind ->
+        EditAspect providedName providedKind providedText ->
             case model.edit of
                 EditingAspectString eName aKind aStr ->
-                    if eName == entityName then
-                        ( { model | edit = EditingAspectKind entityName kind aStr }, Cmd.none )
+                    if eName == providedName then
+                        ( { model | edit = EditingAspectString eName aKind providedText }, Cmd.none )
+
                     else
-                        ( { model | edit = EditingAspectKind entityName Generic "" }, Cmd.none )
+                        ( { model | edit = EditingAspectString providedName Generic "" }, Cmd.none )
 
                 EditingAspectKind eName aKind aStr ->
-                    if eName == entityName then
-                        ( { model | edit = EditingAspectKind entityName kind aStr }, Cmd.none )
+                    if eName == providedName then
+                        ( { model | edit = EditingAspectString eName providedKind aStr }, Cmd.none )
+
                     else
-                        ( { model | edit = EditingAspectKind entityName Generic "" }, Cmd.none )
+                        ( { model | edit = EditingAspectString providedName providedKind "" }, Cmd.none )
 
                 _ ->
-                    ( { model | edit = EditingAspectKind entityName Generic "" }, Cmd.none )
+                    ( { model | edit = EditingAspectString providedName Generic "" }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )

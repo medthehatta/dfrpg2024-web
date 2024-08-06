@@ -17,6 +17,6 @@ type Msg
     | GotCmdReply (Result Http.Error Bool)
     | HoverFP EntityName
     | NoHoverFP
-    | EditAspectText EntityName String
-    | EditAspectKind EntityName AspectKind
+    | EditAspect EntityName AspectKind String
     | CommitAspectInProgress
+    | OpenEditAspectKind

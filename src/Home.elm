@@ -133,7 +133,7 @@ entityV : Model -> Entity -> Html Msg
 entityV model entity =
     let
         onClickEditAspect =
-            onClick (EditAspectText entity.name "")
+            onClick (EditAspect entity.name Generic "")
 
         addButton =
             a
@@ -291,17 +291,22 @@ aspectV model entity aspect =
         onClickEditAspectKind k =
             case model.edit of
                 EditingAspectKind eName aKind aStr ->
-                    if eName == entityName && aStr == aspect.name && aKind == k then
-                        onClick (EditAspectText eName aStr)
+                    if eName == entityName && aStr == aspect.name then
+                        onClick (EditAspect eName k aStr)
 
                     else
-                        onClick (EditAspectKind entityName k)
+                        onClick (EditAspect entityName k "")
 
                 EditingAspectString eName aKind aStr ->
-                    onClick (EditAspectKind entityName k)
+                    if eName == entityName && aStr == aspect.name then
+                        onClick OpenEditAspectKind
+
+                    else
+                        onClick (EditAspect entityName k "")
+
 
                 _ ->
-                    onClick (EditAspectKind entityName Generic)
+                    onClick (EditAspect entityName Generic "")
 
         headSpan k =
             case k of
@@ -372,7 +377,7 @@ aspectV model entity aspect =
                     no
 
         inHandler =
-            onInput (EditAspectText entityName)
+            onInput (EditAspect entityName Generic)
 
         onClickCheck =
             ifAspectForMe
