@@ -314,6 +314,18 @@ aspectV model entity aspect =
                 Sticky ->
                     span [ Attr.class "aspect-head", Attr.class "aspect-sticky" ] [ text "s" ]
 
+        kindEditSpan =
+            case model.edit of
+                EditingAspectKind eName aspectKind aspectStr ->
+                    if eName == entityName then
+                        span [] []
+
+                    else
+                        headSpan kind
+
+                _ ->
+                    headSpan kind
+
         tagSpan =
             span [ Attr.class "aspect-tags", onClick <| TagAspect entityName name ] (List.repeat tags (Icon.view Icon.hashtag))
 
@@ -321,7 +333,7 @@ aspectV model entity aspect =
             onClick (RemoveAspect entityName name)
     in
     div [ Attr.class "aspect" ]
-        [ headSpan kind
+        [ kindEditSpan
         , tagSpan
         , span [ Attr.class "aspect-text" ] [ text name ]
         , a [ Attr.class "aspect-button", onClickX ] [ Icon.view Icon.x ]

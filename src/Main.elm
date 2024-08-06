@@ -148,6 +148,7 @@ update msg model =
                             "add_aspect"
                             ([ ( "entity", Encode.string entity )
                              , ( "name", Encode.string name )
+                             , ( "tags", Encode.int numTags )
                              ]
                                 ++ kindAttr
                             )
