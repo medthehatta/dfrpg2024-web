@@ -38,15 +38,6 @@ home model =
     let
         entities =
             model.game.entities
-
-        order =
-            model.game.order
-
-        fpHovered =
-            model.fpHovered
-
-        aspectInProgress =
-            model.aspectInProgress
     in
     div [ Attr.class "home-container" ]
         [ turnOrderV model
@@ -141,11 +132,16 @@ turnOrderV model =
 entityV : Model -> Entity -> Html Msg
 entityV model entity =
     let
-        fpHovered =
-            model.fpHovered
-
         aspectInProgress =
-            model.aspectInProgress
+            case model.edit of
+                EditingAspectString entityName aspectKind aspectStr ->
+                    Just { entity = entityName, kind = aspectKind, name = aspectStr }
+
+                EditingAspectKind entityName aspectKind aspectStr ->
+                    Just { entity = entityName, kind = aspectKind, name = aspectStr }
+
+                _ ->
+                    Nothing
 
         onClickEditAspect =
             onClick (EditAspectText entity.name "")
@@ -154,14 +150,6 @@ entityV model entity =
             a
                 [ Attr.class "aspect-add-button", onClickEditAspect ]
                 [ Icon.view Icon.plus ]
-
-        aspectBeingEdited =
-            case aspectInProgress of
-                Nothing ->
-                    aspectV model entity { name = "", kind = Generic, tags = 0 }
-
-                Just aip ->
-                    aspectV model entity { name = aip.name, kind = aip.kind, tags = 0 }
 
         maybeEdit =
             case aspectInProgress of
@@ -208,7 +196,12 @@ fateContainerV model entity =
             entity.fate.available
 
         expanded =
-            model.fpHovered == Just entity.name
+            case model.edit of
+                EditingFatePoints eName ->
+                    eName == entity.name
+
+                _ ->
+                    False
 
         refreshItems =
             if refresh /= 0 then
@@ -342,7 +335,15 @@ aspectInput model entity =
             entity.name
 
         aspectInProgress =
-            model.aspectInProgress
+            case model.edit of
+                EditingAspectString eName aspectKind aspectStr ->
+                    Just { entity = eName, kind = aspectKind, name = aspectStr }
+
+                EditingAspectKind eName aspectKind aspectStr ->
+                    Just { entity = eName, kind = aspectKind, name = aspectStr }
+
+                _ ->
+                    Nothing
 
         inHandler =
             onInput (EditAspectText entityName)

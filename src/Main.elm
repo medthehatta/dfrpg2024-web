@@ -47,9 +47,7 @@ main =
             { orderedNames = [], deferredNames = [], current = Nothing }
 
         initialModel =
-            { fpHovered = Nothing
-            , aspectInProgress = Nothing
-            , editAspectKindOpen = False
+            { edit = NotEditing
             , game = { entities = [], order = initialOrder }
             }
     in
@@ -101,47 +99,59 @@ update msg model =
                 [ ( "entity", Encode.string entityName ), ( "name", Encode.string aspectName ) ]
 
         CommitAspectInProgress ->
-            case model.aspectInProgress of
+            let
+                aspectInProgress =
+                    case model.edit of
+                        EditingAspectString entityName aspectKind aspectStr ->
+                            Just { entity = entityName, kind = aspectKind, name = aspectStr }
+
+                        EditingAspectKind entityName aspectKind aspectStr ->
+                            Just { entity = entityName, kind = aspectKind, name = aspectStr }
+
+                        _ ->
+                            Nothing
+            in
+            case aspectInProgress of
                 Nothing ->
                     ( model, Cmd.none )
 
                 Just { entity, name, kind } ->
                     if name == "" then
-                        ( { model | aspectInProgress = Nothing }, Cmd.none )
+                        ( { model | edit = NotEditing }, Cmd.none )
 
                     else
-                    let
-                        kindAttr =
-                            case kind of
-                                Generic ->
-                                    []
+                        let
+                            kindAttr =
+                                case kind of
+                                    Generic ->
+                                        []
 
-                                Fragile ->
-                                    [ ( "kind", Encode.string "fragile" ) ]
+                                    Fragile ->
+                                        [ ( "kind", Encode.string "fragile" ) ]
 
-                                Sticky ->
-                                    [ ( "kind", Encode.string "sticky" ) ]
+                                    Sticky ->
+                                        [ ( "kind", Encode.string "sticky" ) ]
 
-                                Consequence Mild ->
-                                    [ ( "kind", Encode.string "mild" ) ]
+                                    Consequence Mild ->
+                                        [ ( "kind", Encode.string "mild" ) ]
 
-                                Consequence Moderate ->
-                                    [ ( "kind", Encode.string "moderate" ) ]
+                                    Consequence Moderate ->
+                                        [ ( "kind", Encode.string "moderate" ) ]
 
-                                Consequence Severe ->
-                                    [ ( "kind", Encode.string "severe" ) ]
+                                    Consequence Severe ->
+                                        [ ( "kind", Encode.string "severe" ) ]
 
-                        numTags =
-                            1
-                    in
-                    issueCmd
-                        "add_aspect"
-                        ([ ( "entity", Encode.string entity )
-                         , ( "name", Encode.string name )
-                         ]
-                            ++ kindAttr
-                        )
-                        |> (\( m, c ) -> ( { m | aspectInProgress = Nothing }, c ))
+                            numTags =
+                                1
+                        in
+                        issueCmd
+                            "add_aspect"
+                            ([ ( "entity", Encode.string entity )
+                             , ( "name", Encode.string name )
+                             ]
+                                ++ kindAttr
+                            )
+                            |> (\( m, c ) -> ( { m | edit = NotEditing}, c))
 
         -- HTTP Responses
         GotGameData (Err error) ->
@@ -167,53 +177,38 @@ update msg model =
         -- Internal UI Messages
         HoverFP entityName ->
             let
-                updatedUi =
-                    if model.fpHovered == Just entityName then
-                        { model | fpHovered = Nothing }
+                newModel =
+                    case model.edit of
+                        EditingFatePoints eName ->
+                            if eName == entityName then
+                                { model | edit = NotEditing }
 
-                    else
-                        { model | fpHovered = Just entityName }
+                            else
+                                { model | edit = EditingFatePoints entityName }
+
+                        _ ->
+                            { model | edit = EditingFatePoints entityName }
             in
-            ( updatedUi, Cmd.none )
+            ( newModel, Cmd.none )
 
         NoHoverFP ->
-            let
-                updatedUi =
-                    { model | fpHovered = Nothing }
-            in
-            ( updatedUi, Cmd.none )
+            ( { model | edit = NotEditing}, Cmd.none )
 
         EditAspectText entityName text ->
-            let
-                edit =
-                    { entity = entityName, name = text, kind = Generic }
-            in
-            case model.aspectInProgress of
-                Nothing ->
-                    ( { model | aspectInProgress = Just edit }, Cmd.none )
+            case model.edit of
+                EditingAspectString _ aspectKind _ ->
+                    ( { model | edit = EditingAspectString entityName aspectKind text }, Cmd.none)
 
-                Just { entity, name, kind } ->
-                    let
-                        newAIP =
-                            { entity = entityName, name = text, kind = kind }
-                    in
-                    ( { model | aspectInProgress = Just newAIP }, Cmd.none )
+                _ ->
+                    ( { model | edit = EditingAspectString entityName Generic text }, Cmd.none)
 
         EditAspectKind entityName newKind ->
-            let
-                edit =
-                    { entity = entityName, name = "", kind = newKind }
-            in
-            case model.aspectInProgress of
-                Nothing ->
-                    ( { model | aspectInProgress = Just edit }, Cmd.none )
+            case model.edit of
+                EditingAspectString _ _ aspectStr ->
+                    ( { model | edit = EditingAspectString entityName newKind aspectStr }, Cmd.none)
 
-                Just { entity, name, kind } ->
-                    let
-                        newAIP =
-                            { entity = entityName, name = name, kind = newKind }
-                    in
-                    ( { model | aspectInProgress = Just newAIP }, Cmd.none )
+                _ ->
+                    ( { model | edit = EditingAspectString entityName newKind "" }, Cmd.none)
 
         _ ->
             ( model, Cmd.none )

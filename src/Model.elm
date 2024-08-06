@@ -69,9 +69,7 @@ type alias AspectInProgress =
 
 type alias Model =
     { game : GameModel
-    , fpHovered : Maybe EntityName
-    , aspectInProgress : Maybe AspectInProgress
-    , editAspectKindOpen : Bool
+    , edit : EditInProgress
     }
 
 
