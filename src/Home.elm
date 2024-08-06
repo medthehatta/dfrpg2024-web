@@ -342,7 +342,7 @@ aspectV model entity aspect =
         kindEditSpan =
             case model.edit of
                 EditingAspectKind eName aspectKind aspectStr ->
-                    if eName == entityName then
+                    if eName == entityName && aspectStr == aspect.name then
                         ul [ Attr.class "aspect-head-listing" ] (List.map headSpan allKinds)
 
                     else
