@@ -142,8 +142,14 @@ update msg model =
                                     Consequence Severe ->
                                         [ ( "kind", Encode.string "severe" ) ]
 
+                                    Style ->
+                                        []
+
                             numTags =
-                                1
+                                if kind == Style then
+                                    2
+                                else
+                                    1
                         in
                         issueCmd
                             "add_aspect"

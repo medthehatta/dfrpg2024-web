@@ -31,6 +31,7 @@ type AspectKind
     | Consequence Severity
     | Fragile
     | Sticky
+    | Style
 
 
 type alias StressTrack =

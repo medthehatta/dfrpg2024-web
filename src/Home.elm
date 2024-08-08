@@ -343,6 +343,9 @@ aspectV model entity aspect =
                 Sticky ->
                     span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-sticky" ] [ text "s" ]
 
+                Style ->
+                    span [ onClickEditAspectKind k, Attr.class "aspect-head", Attr.class "aspect-style" ] [ text "style" ]
+
         allKinds =
             [ Generic
             , Consequence Mild
@@ -350,6 +353,7 @@ aspectV model entity aspect =
             , Consequence Severe
             , Fragile
             , Sticky
+            , Style
             ]
 
         kindEditSpan =

@@ -243,6 +243,9 @@ a {
 .aspect-generic {
   background-color: #a0a0a0;
 }
+.aspect-style {
+  background-color: #f0f0f0;
+}
 .aspect-tags svg {
   border: solid 2px black;
   padding: 1px;
