@@ -393,7 +393,7 @@ aspectV model entity aspect =
                 ]
 
         withEditing =
-            div [ Attr.class "aspect", Attr.class "aspect-input" ]
+            div [ Attr.class "aspect", Attr.class "aspect-input", Attr.class "pointer" ]
                 [ kindEditSpan
                 , input [ Attr.class "aspect-text", Attr.placeholder "Add Aspect...", inHandler, providedValue ] []
                 , a [ Attr.class "aspect-button", onClickCheck ] [ Icon.view Icon.check ]
