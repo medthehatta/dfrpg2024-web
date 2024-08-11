@@ -185,25 +185,6 @@ update msg model =
             ( { model | error = HasError description }, Cmd.none )
 
         -- Internal UI Messages
-        HoverFP entityName ->
-            let
-                newModel =
-                    case model.edit of
-                        EditingFatePoints eName ->
-                            if eName == entityName then
-                                { model | edit = NotEditing }
-
-                            else
-                                { model | edit = EditingFatePoints entityName }
-
-                        _ ->
-                            { model | edit = EditingFatePoints entityName }
-            in
-            ( newModel, Cmd.none )
-
-        NoHoverFP ->
-            ( { model | edit = NotEditing }, Cmd.none )
-
         OpenEditAspectKind ->
             case model.edit of
                 EditingAspectString eName aKind aStr ->

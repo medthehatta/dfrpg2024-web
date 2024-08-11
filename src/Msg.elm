@@ -15,8 +15,6 @@ type Msg
     | DecrementFP EntityName
     | GotGameData (Result Http.Error GameModel)
     | GotCmdReply (Result Http.Error CommandError)
-    | HoverFP EntityName
-    | NoHoverFP
     | EditAspect EntityName AspectKind String
     | CommitAspectInProgress
     | OpenEditAspectKind

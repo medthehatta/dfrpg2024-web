@@ -205,14 +205,6 @@ fateContainerV model entity =
         available =
             entity.fate.available
 
-        expanded =
-            case model.edit of
-                EditingFatePoints eName ->
-                    eName == entity.name
-
-                _ ->
-                    False
-
         refreshItems =
             if refresh /= 0 then
                 [ span [ Attr.class "entity-fp-slash" ] [ text "/" ]
@@ -222,33 +214,19 @@ fateContainerV model entity =
             else
                 []
 
-        maybeWithCarets html =
-            if expanded then
-                div []
-                    [ div [ Attr.class "entity-carats", onClick (IncrementFP entityName) ] [ Icon.view Icon.caretUp ]
-                    , html
-                    , div [ Attr.class "entity-carats", onClick (DecrementFP entityName) ] [ Icon.view Icon.caretDown ]
-                    ]
+        withCarets html =
+            div []
+                [ div [ Attr.class "entity-carats", onClick (IncrementFP entityName) ] [ Icon.view Icon.caretUp ]
+                , html
+                , div [ Attr.class "entity-carats", onClick (DecrementFP entityName) ] [ Icon.view Icon.caretDown ]
+                ]
 
-            else
-                div [] [ div [ Attr.class "entity-carats" ] [], html, div [ Attr.class "entity-carats" ] [] ]
-
-        hoverableFP html =
-            div [ Attr.class "entity-hoverable-zone", onClick (HoverFP entityName) ]
-                [ html ]
     in
-    if available == 0 && refresh == 0 && not expanded then
-        maybeWithCarets <|
-            hoverableFP <|
-                div [ Attr.class "entity-fp" ] []
-
-    else
-        maybeWithCarets <|
-            hoverableFP <|
-                div [ Attr.class "entity-fp" ]
-                    [ span [ Attr.class "entity-fp-avail" ] [ text (String.fromInt available) ]
-                    , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
-                    ]
+        withCarets <|
+            div [ Attr.class "entity-fp" ]
+                [ span [ Attr.class "entity-fp-avail" ] [ text (String.fromInt available) ]
+                , span [ Attr.class "entity-fp-title" ] [ text "FP" ]
+                ]
 
 
 stressContainerV : Model -> Entity -> Html Msg
