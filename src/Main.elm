@@ -21,7 +21,7 @@ import VitePluginHelper
 refreshGameData : Cmd Msg
 refreshGameData =
     Http.get
-        { url = "http://mancer.in:6501/game"
+        { url = "https://pyro.mancer.in/game"
         , expect = Http.expectJson GotGameData modelDecoderFromGameResult
         }
 
@@ -34,7 +34,7 @@ serverCmd name props =
                     ++ props
     in
     Http.post
-        { url = "http://mancer.in:6501/commands"
+        { url = "https://pyro.mancer.in/commands"
         , body = Http.jsonBody cmdBody
         , expect = Http.expectJson GotCmdReply cmdReplyDecoder
         }
